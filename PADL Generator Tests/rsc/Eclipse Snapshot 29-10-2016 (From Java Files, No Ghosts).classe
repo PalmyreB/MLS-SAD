@@ -1,0 +1,16 @@
+com.spotify.jni.ByteArrayTest,C
+com.spotify.jni.ClassRegistryTest,C
+com.spotify.jni.JavaClassTest,C
+com.spotify.jni.JavaClassUtilsTest,C
+com.spotify.jni.JavaExceptionUtilsTest,C
+com.spotify.jni.JavaStringArrayTest,C
+com.spotify.jni.JavaStringTest,C
+com.spotify.jni.JavaThreadUtilsTest,C
+com.spotify.jni.NativeObjectTest,C
+com.spotify.jni.PersistedObject,C
+com.spotify.jni.TestObject,C
+java.lang.Object,
+java.lang.String,
+unknown.ghost.packag.NativeObject,
+unknown.ghost.packag.PersistedObject,
+unknown.ghost.packag.TestObject,
