@@ -58,15 +58,58 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID"));
 		Set<String> notCachedSet = new HashSet<String>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
-		String callTemplate = ".//call[name/name = '%s']";
-		String argsQuery = ".//argument_list";
-		String nameQuery = ".//argument_list/argument[position() = 3] ";
-
-		// We consider that the necessary fields are cached in the function JNI_OnLoad,
-		// called only once
-		String funcQuery = "//function[name != 'JNI_OnLoad']";
 
 		try {
+			/*
+			 * FIRST CASE An ID is looked up in a function that is called several times
+			 */
+
+			// Functions that are potentially called several times in the host language
+			String nativeDeclQuery = "//function_decl[specifier='native']/name";
+			String hostCallQuery = "//call//name[last()]";
+			NodeList nativeDeclList = (NodeList) xPath.evaluate(nativeDeclQuery, javaXml, XPathConstants.NODESET);
+			NodeList hostCallList = (NodeList) xPath.evaluate(hostCallQuery, javaXml, XPathConstants.NODESET);
+			// TODO Add case of a loop
+			Set<String> nativeDeclSet = new HashSet<String>();
+			Set<String> hostCallSet = new HashSet<String>();
+			Set<String> severalCallSet = new HashSet<String>();
+			int nativeDeclLength = nativeDeclList.getLength();
+			int hostCallLength = hostCallList.getLength();
+			for (int i = 0; i < nativeDeclLength; i++)
+				nativeDeclSet.add(nativeDeclList.item(i).getTextContent());
+			for (int i = 0; i < hostCallLength; i++) {
+				String thisNode = hostCallList.item(i).getTextContent();
+				if (!hostCallSet.add(thisNode))
+					severalCallSet.add(thisNode);
+			}
+			nativeDeclSet.retainAll(severalCallSet);
+
+			// Native functions that look up an ID
+//			String joined = String.join(" or ", methods);
+			String nativeQuery = "//function[(.//call/name/name = 'GetFieldID' or .//call/name/name = 'GetMethodID') and name != 'JNI_OnLoad']";
+			NodeList nativeList = (NodeList) xPath.evaluate(nativeQuery, cXml, XPathConstants.NODESET);
+			for (int i = 0; i < nativeList.getLength(); i++) {
+				String funcLongName = xPath.evaluate("./name", nativeList.item(i));
+				String[] partsOfName = funcLongName.split("_");
+				String funcName = partsOfName[partsOfName.length - 1];
+
+				if (nativeDeclSet.contains(funcName)) {
+					String IDQuery = ".//call[name/name = 'GetFieldID' or name/name = 'GetMethodID']//argument_list/argument[position() = 3]";
+					NodeList IDs = (NodeList) xPath.evaluate(IDQuery, nativeList.item(i), XPathConstants.NODESET);
+					for (int j = 0; j < IDs.getLength(); j++)
+						notCachedSet.add(IDs.item(j).getTextContent());
+				}
+			}
+
+			/*
+			 * SECOND CASE Inside a function, a same ID is looked up at least twice
+			 */
+			// We consider that the necessary fields are cached in the function JNI_OnLoad,
+			// called only once
+			String funcQuery = "//function[name != 'JNI_OnLoad']";
+			String callTemplate = ".//call[name/name = '%s']";
+			String argsQuery = ".//argument_list";
+			String nameQuery = ".//argument_list/argument[position() = 3]";
 			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
 			int funcLength = funcList.getLength();
 			// Analysis for each function
@@ -74,7 +117,7 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 
 				// Analysis for each Get<>ID
 				for (String method : methods) {
-					Set<String> args = new HashSet<>();
+					Set<NodeList> args = new HashSet<>();
 					String callQuery = String.format(callTemplate, method);
 					NodeList callList = (NodeList) xPath.evaluate(callQuery, funcList.item(i), XPathConstants.NODESET);
 					int callLength = callList.getLength();
@@ -83,8 +126,9 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 						// Arguments should be treated and compared as NodeLists, in case they do not
 						// respect the same conventions
 						// This only works if there are spaces at the same locations e.g.
-						String theseArgs = xPath.evaluate(argsQuery, callList.item(j));
-						if (args.contains(theseArgs))
+						NodeList theseArgs = (NodeList) xPath.evaluate(argsQuery, callList.item(j),
+								XPathConstants.NODESET);
+						if (this.setContainsNodeList(args, theseArgs))
 							notCachedSet.add(xPath.evaluate(nameQuery, callList.item(j)));
 						else
 							args.add(theseArgs);
@@ -108,6 +152,14 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 				return false;
 		}
 		return true;
+	}
+
+	private boolean setContainsNodeList(Set<NodeList> hs, NodeList nl) {
+		for (NodeList cur_nl : hs) {
+			if (this.nodeListsEqual(cur_nl, nl))
+				return true;
+		}
+		return false;
 	}
 
 }
