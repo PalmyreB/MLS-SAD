@@ -50,8 +50,7 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 				// functions with _ in their names. This should not happen if names are written
 				// in lowerCamelCase.
 				String[] partsOfName = implList.item(i).getTextContent().split("_");
-				implList.item(i).setTextContent(partsOfName[partsOfName.length - 1]);
-				implSet.add(implList.item(i).getTextContent());
+				implSet.add(partsOfName[partsOfName.length - 1]);
 			}
 			for (i = 0; i < callLength; i++) {
 				callSet.add(callList.item(i).getTextContent());
