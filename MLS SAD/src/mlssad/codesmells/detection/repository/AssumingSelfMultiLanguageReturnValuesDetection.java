@@ -32,7 +32,7 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 		 */
 
 		Set<String> methods = new HashSet<>(
-				Arrays.asList("FindClass", "GetFieldID", "GetMethodID", "GetStaticMethodID"));
+				Arrays.asList("FindClass", "GetFieldID", "GetStaticFieldID", "GetMethodID", "GetStaticMethodID"));
 		Set<String> exceptions = new HashSet<>(Arrays.asList("ExceptionOccurred", "ExceptionCheck"));
 		Set<String> notCheckedSet = new HashSet<String>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
