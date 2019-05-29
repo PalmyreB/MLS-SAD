@@ -1,11 +1,9 @@
 package mlssad.codesmells.detection.repository;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -32,28 +30,6 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		 * method are not being cached."
 		 * https://www.ibm.com/developerworks/library/j-jni/index.html
 		 */
-
-		/*
-		 * Implemented here: inside a function, a same ID is looked up at least twice
-		 * 
-		 * Other way: in all functions, many GetFieldID() and GetMethodID() calls refer
-		 * to the same ID
-		 */
-
-		/*
-		 * jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char
-		 * *sig);
-		 * 
-		 * jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char
-		 * *sig);
-		 */
-		Properties props = new Properties();
-		try {
-			props.load(new FileInputStream("../MLS SAD/rsc/config.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		int minNbOfGetID = Integer.parseInt(props.getProperty("NotCachingObjectsElements.MinNbOfGetID", "2"));
 
 		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID"));
 		Set<String> notCachedSet = new HashSet<String>();
@@ -85,16 +61,28 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			nativeDeclSet.retainAll(severalCallSet);
 
 			// Native functions that look up an ID
-//			String joined = String.join(" or ", methods);
-			String nativeQuery = "//function[(.//call/name/name = 'GetFieldID' or .//call/name/name = 'GetMethodID') and name != 'JNI_OnLoad']";
+			List<String> nativeSelectorList = new LinkedList<>();
+			List<String> IDSelectorList = new LinkedList<>();
+			for (String method : methods) {
+				nativeSelectorList.add(String.format(".//call/name/name = '%s'", method));
+				IDSelectorList.add(String.format("name/name = '%s'", method));
+			}
+			String nativeSelector = String.join(" or ", nativeSelectorList);
+			String IDSelector = String.join(" or ", IDSelectorList);
+			String nativeQuery = String.format("//function[(%s) and name != 'JNI_OnLoad']", nativeSelector);
+			String IDQuery = String.format(".//call[%s]//argument_list/argument[position() = 3]", IDSelector);
+
 			NodeList nativeList = (NodeList) xPath.evaluate(nativeQuery, cXml, XPathConstants.NODESET);
 			for (int i = 0; i < nativeList.getLength(); i++) {
+				// WARNING: This only keeps the part of the function name after the last
+				// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
+				// functions with _ in their names. This should not happen if names are written
+				// in lowerCamelCase.
 				String funcLongName = xPath.evaluate("./name", nativeList.item(i));
 				String[] partsOfName = funcLongName.split("_");
 				String funcName = partsOfName[partsOfName.length - 1];
 
 				if (nativeDeclSet.contains(funcName)) {
-					String IDQuery = ".//call[name/name = 'GetFieldID' or name/name = 'GetMethodID']//argument_list/argument[position() = 3]";
 					NodeList IDs = (NodeList) xPath.evaluate(IDQuery, nativeList.item(i), XPathConstants.NODESET);
 					for (int j = 0; j < IDs.getLength(); j++)
 						notCachedSet.add(IDs.item(j).getTextContent());
@@ -122,16 +110,15 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 					NodeList callList = (NodeList) xPath.evaluate(callQuery, funcList.item(i), XPathConstants.NODESET);
 					int callLength = callList.getLength();
 					for (int j = 0; j < callLength; j++) {
-						// TODO Refine the body of this loop
-						// Arguments should be treated and compared as NodeLists, in case they do not
-						// respect the same conventions
-						// This only works if there are spaces at the same locations e.g.
+						// Arguments should be treated and compared as NodeLists and not Strings, in
+						// case they do not respect the same conventions (e.g. concerning spaces)
 						NodeList theseArgs = (NodeList) xPath.evaluate(argsQuery, callList.item(j),
 								XPathConstants.NODESET);
 						if (this.setContainsNodeList(args, theseArgs))
 							notCachedSet.add(xPath.evaluate(nameQuery, callList.item(j)));
 						else
 							args.add(theseArgs);
+
 					}
 				}
 
@@ -142,23 +129,32 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		}
 	}
 
-	private boolean nodeListsEqual(NodeList nl1, NodeList nl2) {
+	private boolean argListsEqual(NodeList nl1, NodeList nl2) {
 		int l1 = nl1.getLength();
 		int l2 = nl2.getLength();
+
 		if (l1 != l2)
 			return false;
+
+		if (l1 == 1 && nl1.item(0).hasChildNodes() && nl2.item(0).hasChildNodes())
+			return this.argListsEqual(nl1.item(0).getChildNodes(), nl2.item(0).getChildNodes());
+
 		for (int i = 0; i < l1; i++) {
-			if (nl1.item(i) != nl2.item(i))
+			String nn1 = nl1.item(i).getNodeName();
+			String nn2 = nl2.item(i).getNodeName();
+			boolean differentTypes = !nn1.equals(nn2);
+			boolean differentContents = !nn1.equals("#text")
+					&& !nl1.item(i).getTextContent().equals(nl2.item(i).getTextContent());
+			if (differentTypes || differentContents)
 				return false;
 		}
 		return true;
 	}
 
 	private boolean setContainsNodeList(Set<NodeList> hs, NodeList nl) {
-		for (NodeList cur_nl : hs) {
-			if (this.nodeListsEqual(cur_nl, nl))
+		for (NodeList cur_nl : hs)
+			if (this.argListsEqual(cur_nl, nl))
 				return true;
-		}
 		return false;
 	}
 
