@@ -31,7 +31,7 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		 * https://www.ibm.com/developerworks/library/j-jni/index.html
 		 */
 
-		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID"));
+		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID", " GetStaticMethodID"));
 		Set<String> notCachedSet = new HashSet<String>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 

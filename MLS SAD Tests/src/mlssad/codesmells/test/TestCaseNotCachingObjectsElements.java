@@ -15,7 +15,7 @@ public class TestCaseNotCachingObjectsElements extends TestCase {
 		super.setUp();
 	}
 
-	public void testNotCachingObjectsElement() {
+	public void testNotCachingObjectsElements() {
 
 		final String aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/NotCachingObjectsElements.c";
 		final String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/NotCachingObjectsElements.java";
@@ -28,7 +28,7 @@ public class TestCaseNotCachingObjectsElements extends TestCase {
 		assertEquals(expectedSmells, detector.getCodeSmells());
 	}
 
-	public void testNotCachingObjectsElementNoCodeSmell() {
+	public void testNotCachingObjectsElementsNoCodeSmell() {
 		final String aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/noCodeSmell/NoCodeSmell.c";
 		final String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/noCodeSmell/NoCodeSmell.java";
 		Set<String> expectedSmells = new HashSet<String>();
