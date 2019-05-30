@@ -129,32 +129,25 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		}
 	}
 
-	private boolean argListsEqual(NodeList nl1, NodeList nl2) {
+	private boolean nodeListsEqual(NodeList nl1, NodeList nl2) {
 		int l1 = nl1.getLength();
 		int l2 = nl2.getLength();
 
 		if (l1 != l2)
 			return false;
 
-		if (l1 == 1 && nl1.item(0).hasChildNodes() && nl2.item(0).hasChildNodes())
-			return this.argListsEqual(nl1.item(0).getChildNodes(), nl2.item(0).getChildNodes());
-
-		for (int i = 0; i < l1; i++) {
-			String nn1 = nl1.item(i).getNodeName();
-			String nn2 = nl2.item(i).getNodeName();
-			boolean differentTypes = !nn1.equals(nn2);
-			boolean differentContents = !nn1.equals("#text")
-					&& !nl1.item(i).getTextContent().equals(nl2.item(i).getTextContent());
-			if (differentTypes || differentContents)
+		for (int i = 0; i < l1; i++)
+			if (!nl1.item(i).isEqualNode(nl2.item(i)))
 				return false;
-		}
+
 		return true;
 	}
 
 	private boolean setContainsNodeList(Set<NodeList> hs, NodeList nl) {
 		for (NodeList cur_nl : hs)
-			if (this.argListsEqual(cur_nl, nl))
+			if (this.nodeListsEqual(cur_nl, nl))
 				return true;
+
 		return false;
 	}
 
