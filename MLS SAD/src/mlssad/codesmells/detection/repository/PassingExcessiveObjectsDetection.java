@@ -1,11 +1,8 @@
 package mlssad.codesmells.detection.repository;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -18,6 +15,7 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.utils.PropertyGetter;
 
 public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
@@ -28,13 +26,8 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 	public void detect(final Document cXml, final Document javaXml) {
 		// TODO If object used for something else than get, it is not a code smell to
 		// pass it as a parameter
-		Properties props = new Properties();
-		try {
-			props.load(new FileInputStream("../MLS SAD/rsc/config.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		int maxNbOfFields = Integer.parseInt(props.getProperty("PassingExcessiveObjects.MaxNbOfFields", "5"));
+
+		int maxNbOfFields = PropertyGetter.getIntProp("PassingExcessiveObjects.MaxNbOfFields", 5);
 
 		Set<String> types = new HashSet<>(Arrays.asList("ObjectField", "BooleanField", "ByteField", "CharField",
 				"ShortField", "IntField", "LongField", "FloatField", "DoubleField"));
