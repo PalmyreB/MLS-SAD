@@ -21,6 +21,10 @@ import mlssad.utils.PropertyGetter;
 public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPatternDetection
 		implements IAntiPatternDetection {
 
+	public String getAntiPatternName() {
+		return "ExcessiveInterLanguageCommunication";
+	}
+
 	@Override
 	public String getName() {
 		return "ExcessiveInterLanguageCommunicationDetection";
@@ -44,6 +48,9 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 		int nbOfNativeCalls = 0;
 
 		try {
+			String thisPackage = xPath.evaluate("//package/name", javaXml);
+			String filePath = xPath.evaluate("//unit/@filename", javaXml);
+
 			// Native method declaration
 			NodeList nativeDeclList = (NodeList) xPath.evaluate("//function_decl[specifier='native']/name", javaXml,
 					XPathConstants.NODESET);
@@ -58,7 +65,8 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 
 				for (int j = 0; j < nbOfCallsToThisMethod; j++) {
 					String thisClass = xPath.evaluate("ancestor::class/name", callList.item(j));
-					MLSAntiPattern thisAntiPattern = new MLSAntiPattern(thisNativeMethod, thisClass);
+					MLSAntiPattern thisAntiPattern = new MLSAntiPattern(this.getAntiPatternName(), null,
+							thisNativeMethod, thisClass, thisPackage, filePath);
 					allNativeCalls.add(thisAntiPattern);
 
 					/*
@@ -79,6 +87,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 					 * SECOND CASE Calls to different native methods with at least one variable in
 					 * common
 					 */
+					// TODO Do it separately for each class
 					NodeList argList = (NodeList) xPath.evaluate("argument_list/argument/expr/name", callList.item(j),
 							XPathConstants.NODESET);
 					for (int k = 0; k < argList.getLength(); k++) {
