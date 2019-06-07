@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class MLSAntiPattern {
-	private String antiPatternName;
+public class MLSCodeSmell {
+
+	private String codeSmellName;
 
 	private int lineNumber;
 	private String variableName;
@@ -14,14 +15,14 @@ public class MLSAntiPattern {
 	private String packageName;
 	private String filePath;
 
-	public MLSAntiPattern(String aMethod, String aClass) {
+	public MLSCodeSmell(String aMethod, String aClass) {
 		this.methodName = aMethod;
 		this.className = aClass;
 	}
 
-	public MLSAntiPattern(String anAntiPattern, String aVariable, String aMethod, String aClass, String aPackage,
+	public MLSCodeSmell(String aCodeSmell, String aVariable, String aMethod, String aClass, String aPackage,
 			String aPath) {
-		this.antiPatternName = anAntiPattern;
+		this.codeSmellName = aCodeSmell;
 		this.variableName = aVariable;
 		this.methodName = aMethod;
 		this.className = aClass;
@@ -29,12 +30,12 @@ public class MLSAntiPattern {
 		this.filePath = aPath;
 	}
 
-	public String getAntiPatternName() {
-		return antiPatternName;
+	public String getCodeSmellName() {
+		return codeSmellName;
 	}
 
 	public void setAntiPatternName(String antiPatternName) {
-		this.antiPatternName = antiPatternName;
+		this.codeSmellName = antiPatternName;
 	}
 
 	public int getLineNumber() {
@@ -94,13 +95,13 @@ public class MLSAntiPattern {
 		if (o == null)
 			return false;
 
-		if (!(o instanceof MLSAntiPattern))
+		if (!(o instanceof MLSCodeSmell))
 			return false;
 
 		if (o == this)
 			return true;
 
-		return this.getElementsList().equals(((MLSAntiPattern) o).getElementsList());
+		return this.getElementsList().equals(((MLSCodeSmell) o).getElementsList());
 	}
 
 	@Override
@@ -127,6 +128,6 @@ public class MLSAntiPattern {
 			}
 		}
 		return sb.toString();
-//		return String.format("%s.%s", className, methodName);
 	}
+
 }

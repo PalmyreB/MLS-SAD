@@ -17,9 +17,16 @@ import org.w3c.dom.Document;
 //import util.help.IHelpURL;
 
 public interface ICodeSmellDetection /* extends IHelpURL */ {
+	String getCodeSmellName();
+
 	String getName();
 
-	Set getCodeSmells();
+	Set<?> getCodeSmells();
+
+	String FUNC_QUERY = "ancestor::function/name";
+	String CLASS_QUERY = "ancestor::class/name";
+	String PACKAGE_QUERY = "//package/name";
+	String FILEPATH_QUERY = "//unit/@filename";
 
 //	void output(final PrintWriter aWriter);
 	void detect(final Document cXml, final Document javaXml);

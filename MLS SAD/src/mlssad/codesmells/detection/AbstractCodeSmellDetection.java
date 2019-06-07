@@ -14,11 +14,16 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 
 public abstract class AbstractCodeSmellDetection {
 //	private BoxPlot boxPlot;
-	private Set setOfSmells;
+	protected XPath xPath = XPathFactory.newInstance().newXPath();
+
+	private Set<?> setOfSmells; // TODO Replace ? with MLSCodeSmell when all tests are replaced
 
 	public AbstractCodeSmellDetection() {
 	}
@@ -29,15 +34,19 @@ public abstract class AbstractCodeSmellDetection {
 //		return this.boxPlot;
 //	}
 
-	public Set getCodeSmells() {
+	public Set<?> getCodeSmells() {
 		return this.setOfSmells;
 	}
-	
+
 	public String getHelpURL() {
 		return "";
 	}
 
-	public abstract String getName();
+	public abstract String getCodeSmellName();
+
+	public String getName() {
+		return this.getCodeSmellName() + "Detection";
+	}
 
 	/**
 	 * Return a file that displays all the smells detected
@@ -70,7 +79,7 @@ public abstract class AbstractCodeSmellDetection {
 //		this.boxPlot = boxPlot;
 //	}
 
-	protected void setSetOfSmells(final Set setOfSmells) {
+	protected void setSetOfSmells(final Set<?> setOfSmells) {
 		this.setOfSmells = setOfSmells;
 	}
 }

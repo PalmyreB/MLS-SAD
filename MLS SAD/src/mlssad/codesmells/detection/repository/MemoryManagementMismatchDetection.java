@@ -18,15 +18,16 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 
 public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getName() {
-		return "MemoryManagementMismatchDetection";
+	public String getCodeSmellName() {
+		return "MemoryManagementMismatch";
 	}
 
 	public void detect(final Document cXml, final Document javaXml) {
-		Set<String> notReleasedSet = new HashSet<String>();
+		Set<MLSCodeSmell> notReleasedSet = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		List<String> types = Arrays.asList("StringChars", "StringUTFChars", "BooleanArrayElements", "ByteArrayElements",
@@ -39,6 +40,9 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 		String nodeWithGivenArg = "%s[argument_list/argument[2]/expr/name='%s']";
 
 		try {
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			String cFilePath = FILEPATH_EXP.evaluate(cXml);
+
 			XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
 
 			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
@@ -46,7 +50,7 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 			// Analysis for each function
 			for (int i = 0; i < funcLength; i++) {
 				Node thisFunction = funcList.item(i);
-
+				String funcName = xPath.evaluate("./name", thisFunction);
 				// Analysis for each type
 				Iterator<String> it = types.iterator();
 				while (it.hasNext()) {
@@ -60,6 +64,9 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 
 					NodeList getList = (NodeList) xPath.evaluate(getCallQuery, thisFunction, XPathConstants.NODESET);
 
+					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), thisType, funcName, null, null,
+							cFilePath);
+
 					// Look for a call to the matching release function
 					// The second argument should match (name of the Java object)
 					for (int j = 0; j < getList.getLength(); j++) {
@@ -67,7 +74,8 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 						String nodeWithGivenArgQuery = String.format(nodeWithGivenArg, releaseCallQuery, secondArg);
 						String matchedRelease = xPath.evaluate(nodeWithGivenArgQuery, thisFunction);
 						if (matchedRelease == "") {
-							notReleasedSet.add(thisType);
+							notReleasedSet.add(codeSmell);
+							System.out.println(codeSmell);
 						}
 					}
 

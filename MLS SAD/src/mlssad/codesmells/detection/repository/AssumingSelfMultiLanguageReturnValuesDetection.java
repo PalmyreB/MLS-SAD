@@ -6,10 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -17,12 +16,13 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 
 public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCodeSmellDetection
 		implements ICodeSmellDetection {
 
-	public String getName() {
-		return "AssumingSelfMultiLanguageReturnValuesDetection";
+	public String getCodeSmellName() {
+		return "AssumingSelfMultiLanguageReturnValues";
 	}
 
 	public void detect(final Document cXml, final Document javaXml) {
@@ -31,13 +31,18 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 		 * neither any condition on its value nor an exception check.
 		 */
 
+		String codeSmellName = this.getCodeSmellName();
+
 		Set<String> methods = new HashSet<>(
 				Arrays.asList("FindClass", "GetFieldID", "GetStaticFieldID", "GetMethodID", "GetStaticMethodID"));
 		Set<String> exceptions = new HashSet<>(Arrays.asList("ExceptionOccurred", "ExceptionCheck"));
-		Set<String> notCheckedSet = new HashSet<String>();
-		XPath xPath = XPathFactory.newInstance().newXPath();
+		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 
 		try {
+			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			String cFilePath = FILEPATH_EXP.evaluate(cXml);
+
 			// Native functions that look up an ID
 			List<String> selectorList = new LinkedList<>();
 			List<String> exceptSelectorList = new LinkedList<>();
@@ -88,8 +93,10 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 					}
 				}
 
-				if (isNotChecked)
-					notCheckedSet.add(arg);
+				if (isNotChecked) {
+					String function = FUNC_EXP.evaluate(declList.item(i));
+					notCheckedSet.add(new MLSCodeSmell(codeSmellName, arg, function, null, null, cFilePath));
+				}
 			}
 
 			this.setSetOfSmells(notCheckedSet);
