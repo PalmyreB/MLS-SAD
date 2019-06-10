@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -17,11 +18,12 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getName() {
-		return "NotHandlingExceptionsDetection";
+	public String getCodeSmellName() {
+		return "NotHandlingExceptions";
 	}
 
 	public void detect(final Document cXml, final Document javaXml) {
@@ -29,10 +31,14 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 		Set<String> methods = new HashSet<>(
 				Arrays.asList("FindClass", "GetFieldID", "GetStaticFieldID", "GetMethodID", "GetStaticMethodID"));
 		Set<String> exceptions = new HashSet<>(Arrays.asList("ExceptionOccurred", "ExceptionCheck"));
-		Set<String> notCheckedSet = new HashSet<String>();
+		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		try {
+			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final String cFilePath = FILEPATH_EXP.evaluate(cXml);
+
 			List<String> selectorList = new LinkedList<>();
 			List<String> exceptSelectorList = new LinkedList<>();
 			for (String method : methods)
@@ -47,10 +53,11 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 			String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
 			NodeList declList = (NodeList) xPath.evaluate(declQuery, cXml, XPathConstants.NODESET);
 			NodeList exceptList = (NodeList) xPath.evaluate(exceptQuery, cXml, XPathConstants.NODESET);
-			int declLength = declList.getLength();
-			int exceptLength = exceptList.getLength();
+			final int declLength = declList.getLength();
+			final int exceptLength = exceptList.getLength();
 
 			for (int i = 0; i < declLength; i++) {
+				String funcName = FUNC_EXP.evaluate(declList.item(i));
 				String arg = xPath.evaluate(String.format(argQuery, 3, 3), declList.item(i));
 				if (arg.equals("")) // Case of FindClass, that has only two arguments
 					arg = xPath.evaluate(String.format(argQuery, 2, 2), declList.item(i));
@@ -64,7 +71,7 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 						isNotChecked = false;
 
 				if (isNotChecked)
-					notCheckedSet.add(arg);
+					notCheckedSet.add(new MLSCodeSmell(this.getCodeSmellName(), arg, funcName, "", "", cFilePath));
 			}
 
 			this.setSetOfSmells(notCheckedSet);

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.codesmells.detection.repository.NotHandlingExceptionsDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 import mlssad.utils.CodeToXml;
 
 public class TestCaseNotHandlingExceptions extends AbstractCodeSmellTestCase {
@@ -14,7 +15,8 @@ public class TestCaseNotHandlingExceptions extends AbstractCodeSmellTestCase {
 		super.setUp();
 		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/NotHandlingExceptions.c";
 		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/NotHandlingExceptions.java";
-		expectedSmells = new HashSet<String>(Arrays.asList("name"));
+		expectedSmells = new HashSet<>(Arrays.asList(new MLSCodeSmell("NotHandlingExceptions", "name",
+				"Java_codeSmellsJava_NotHandlingExceptions_getCharField", "", "", aPathC))); //
 		detector = new NotHandlingExceptionsDetection();
 	}
 
@@ -25,7 +27,11 @@ public class TestCaseNotHandlingExceptions extends AbstractCodeSmellTestCase {
 		// Although there are expected code smells, they are not really code smells,
 		// since they are checked in a condition (they pass the test
 		// AssumingSelfMultiLanguageValues)
-		Set<String> expectedSmells = new HashSet<String>(Arrays.asList("\"message\"", "\"number\""));
+		Set<MLSCodeSmell> expectedSmells = new HashSet<>(Arrays.asList(
+				new MLSCodeSmell("NotHandlingExceptions", "\"message\"",
+						"Java_noCodeSmell_NoCodeSmell_modifyInstanceVariable", "", "", aPathC),
+				new MLSCodeSmell("NotHandlingExceptions", "\"number\"",
+						"Java_noCodeSmell_NoCodeSmell_modifyInstanceVariable", "", "", aPathC)));
 
 		ICodeSmellDetection detector = new NotHandlingExceptionsDetection();
 		detector.detect(new CodeToXml().parse(aPathC), new CodeToXml().parse(aPathJava));

@@ -71,7 +71,7 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 				for (int j = 0; j < declList.getLength(); j++) {
 					String var = declList.item(j).getTextContent();
 					String thisFunction = FUNC_EXP.evaluate(declList.item(j));
-					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), var, thisFunction, null, null,
+					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), var, thisFunction, "", "",
 							cFilePath);
 
 					// If the reference is in a loop, check whether it is deleted in the loop

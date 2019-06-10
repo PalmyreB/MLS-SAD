@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -16,11 +17,12 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getName() {
-		return "NotCachingObjectsElementsDetection";
+	public String getCodeSmellName() {
+		return "NotCachingObjectsElements";
 	}
 
 	public void detect(final Document cXml, final Document javaXml) {
@@ -32,10 +34,13 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		 */
 
 		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID", " GetStaticMethodID"));
-		Set<String> notCachedSet = new HashSet<String>();
+		Set<MLSCodeSmell> notCachedSet = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		try {
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+
+			final String cFilePath = FILEPATH_EXP.evaluate(cXml);
 			/*
 			 * FIRST CASE An ID is looked up in a function that is called several times
 			 */
@@ -49,8 +54,8 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			Set<String> nativeDeclSet = new HashSet<String>();
 			Set<String> hostCallSet = new HashSet<String>();
 			Set<String> severalCallSet = new HashSet<String>();
-			int nativeDeclLength = nativeDeclList.getLength();
-			int hostCallLength = hostCallList.getLength();
+			final int nativeDeclLength = nativeDeclList.getLength();
+			final int hostCallLength = hostCallList.getLength();
 			for (int i = 0; i < nativeDeclLength; i++)
 				nativeDeclSet.add(nativeDeclList.item(i).getTextContent());
 			for (int i = 0; i < hostCallLength; i++) {
@@ -84,8 +89,10 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 
 				if (nativeDeclSet.contains(funcName)) {
 					NodeList IDs = (NodeList) xPath.evaluate(IDQuery, nativeList.item(i), XPathConstants.NODESET);
+					// TODO Add code smell in Java file?
 					for (int j = 0; j < IDs.getLength(); j++)
-						notCachedSet.add(IDs.item(j).getTextContent());
+						notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(), IDs.item(j).getTextContent(),
+								funcLongName, "", "", cFilePath));
 				}
 			}
 
@@ -99,10 +106,10 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			String argsQuery = ".//argument_list";
 			String nameQuery = ".//argument_list/argument[position() = 3]";
 			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
-			int funcLength = funcList.getLength();
+			final int funcLength = funcList.getLength();
 			// Analysis for each function
 			for (int i = 0; i < funcLength; i++) {
-
+				String funcLongName = xPath.evaluate("./name", funcList.item(i));
 				// Analysis for each Get<>ID
 				for (String method : methods) {
 					Set<NodeList> args = new HashSet<>();
@@ -115,13 +122,13 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 						NodeList theseArgs = (NodeList) xPath.evaluate(argsQuery, callList.item(j),
 								XPathConstants.NODESET);
 						if (this.setContainsNodeList(args, theseArgs))
-							notCachedSet.add(xPath.evaluate(nameQuery, callList.item(j)));
+							notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(),
+									xPath.evaluate(nameQuery, callList.item(j)), funcLongName, "", "", cFilePath));
 						else
 							args.add(theseArgs);
 
 					}
 				}
-
 			}
 			this.setSetOfSmells(notCachedSet);
 		} catch (XPathExpressionException e) {

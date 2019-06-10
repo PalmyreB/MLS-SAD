@@ -18,8 +18,8 @@ public class TestCaseAssumingSelfMultiLanguageReturnValues extends AbstractCodeS
 		expectedSmells = new HashSet<MLSCodeSmell>(
 				Arrays.asList(
 						new MLSCodeSmell(codeSmell, "\"codeSmellsJava/AssumingSelfMultiLanguageReturnValues\"",
-								cFunction, null, null, aPathC),
-						new MLSCodeSmell(codeSmell, "\"output\"", cFunction, null, null, aPathC)));
+								cFunction, "", "", aPathC),
+						new MLSCodeSmell(codeSmell, "\"output\"", cFunction, "", "", aPathC)));
 	}
 
 }

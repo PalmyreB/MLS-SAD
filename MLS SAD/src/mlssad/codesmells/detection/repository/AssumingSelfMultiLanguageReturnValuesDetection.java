@@ -95,7 +95,7 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 
 				if (isNotChecked) {
 					String function = FUNC_EXP.evaluate(declList.item(i));
-					notCheckedSet.add(new MLSCodeSmell(codeSmellName, arg, function, null, null, cFilePath));
+					notCheckedSet.add(new MLSCodeSmell(codeSmellName, arg, function, "", "", cFilePath));
 				}
 			}
 

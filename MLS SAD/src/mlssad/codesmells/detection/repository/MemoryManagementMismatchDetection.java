@@ -64,7 +64,7 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 
 					NodeList getList = (NodeList) xPath.evaluate(getCallQuery, thisFunction, XPathConstants.NODESET);
 
-					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), thisType, funcName, null, null,
+					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), thisType, funcName, "", "",
 							cFilePath);
 
 					// Look for a call to the matching release function
@@ -75,7 +75,6 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 						String matchedRelease = xPath.evaluate(nodeWithGivenArgQuery, thisFunction);
 						if (matchedRelease == "") {
 							notReleasedSet.add(codeSmell);
-							System.out.println(codeSmell);
 						}
 					}
 

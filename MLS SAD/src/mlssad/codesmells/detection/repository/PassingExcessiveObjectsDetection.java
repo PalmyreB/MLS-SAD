@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -15,11 +16,12 @@ import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
+import mlssad.kernel.impl.MLSCodeSmell;
 import mlssad.utils.PropertyGetter;
 
 public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getName() {
+	public String getCodeSmellName() {
 		return "PassingExcessiveObjectsDetection";
 	}
 
@@ -36,17 +38,22 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 		String getTemplate = "Get%s";
 		String setTemplate = "Set%s";
 
-		Set<String> excessiveObjectsSet = new HashSet<String>();
+		Set<MLSCodeSmell> excessiveObjectsSet = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		String callTemplate = "//call/name/name[. = '%s']";
 		String paramQuery = "parameter_list/parameter[position()>2]/decl[type/name = 'jobject']/name";
 		String funcQuery = "//function";
 
 		try {
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+
+			String cFilePath = FILEPATH_EXP.evaluate(cXml);
+
 			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
 			int funcLength = funcList.getLength();
 			// Analysis for each function
 			for (int i = 0; i < funcLength; i++) {
+				String funcName = xPath.evaluate("./name", funcList.item(i));
 				NodeList paramList = (NodeList) xPath.evaluate(paramQuery, funcList.item(i), XPathConstants.NODESET);
 				int paramLength = paramList.getLength();
 				// Analysis for each parameter that is an object
@@ -86,7 +93,8 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 					// If there are many accesses, the code smell is justified:
 					// better pass the object as a parameter than pass too many fields
 					if (nbGet > 0 && nbGet < maxNbOfFields) {
-						excessiveObjectsSet.add(paramList.item(j).getTextContent());
+						excessiveObjectsSet.add(new MLSCodeSmell(this.getCodeSmellName(),
+								paramList.item(j).getTextContent(), funcName, "", "", cFilePath));
 					}
 				}
 			}

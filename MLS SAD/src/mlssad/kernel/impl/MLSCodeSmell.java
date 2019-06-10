@@ -111,6 +111,13 @@ public class MLSCodeSmell {
 
 	@Override
 	public String toString() {
+//		 TODO Clearly indicate which element is what
+//		 Possible output:
+//		 {
+//			CodeSmell: "";
+//			Variable: "";
+//			...
+//		}
 		List<String> elements = this.getElementsList();
 		StringBuilder sb = new StringBuilder();
 		Iterator<String> it = elements.iterator();
@@ -118,7 +125,7 @@ public class MLSCodeSmell {
 
 		while (it.hasNext()) {
 			String el = it.next();
-			if (el != null) {
+			if (el != null && !el.equals("")) {
 				if (!firstEl) {
 					sb.append(".");
 				} else {
