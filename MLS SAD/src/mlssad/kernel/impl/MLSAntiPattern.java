@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MLSAntiPattern {
+
 	private String antiPatternName;
 
 	private int lineNumber;
@@ -110,6 +111,13 @@ public class MLSAntiPattern {
 
 	@Override
 	public String toString() {
+//		 TODO Clearly indicate which element is what
+//		 Possible output:
+//		 {
+//			CodeSmell: "";
+//			Variable: "";
+//			...
+//		}
 		List<String> elements = this.getElementsList();
 		StringBuilder sb = new StringBuilder();
 		Iterator<String> it = elements.iterator();
@@ -117,7 +125,7 @@ public class MLSAntiPattern {
 
 		while (it.hasNext()) {
 			String el = it.next();
-			if (el != null) {
+			if (el != null && !el.equals("")) {
 				if (!firstEl) {
 					sb.append(".");
 				} else {
@@ -127,6 +135,5 @@ public class MLSAntiPattern {
 			}
 		}
 		return sb.toString();
-//		return String.format("%s.%s", className, methodName);
 	}
 }

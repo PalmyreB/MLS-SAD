@@ -10,8 +10,6 @@
  ******************************************************************************/
 package mlssad.codesmells.detection;
 
-import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -19,11 +17,13 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
+import mlssad.kernel.impl.MLSCodeSmell;
+
 public abstract class AbstractCodeSmellDetection {
 //	private BoxPlot boxPlot;
 	protected XPath xPath = XPathFactory.newInstance().newXPath();
 
-	private Set<?> setOfSmells; // TODO Replace ? with MLSCodeSmell when all tests are replaced
+	private Set<MLSCodeSmell> setOfSmells;
 
 	public AbstractCodeSmellDetection() {
 	}
@@ -34,7 +34,7 @@ public abstract class AbstractCodeSmellDetection {
 //		return this.boxPlot;
 //	}
 
-	public Set<?> getCodeSmells() {
+	public Set<MLSCodeSmell> getCodeSmells() {
 		return this.setOfSmells;
 	}
 
@@ -79,7 +79,7 @@ public abstract class AbstractCodeSmellDetection {
 //		this.boxPlot = boxPlot;
 //	}
 
-	protected void setSetOfSmells(final Set<?> setOfSmells) {
+	protected void setSetOfSmells(final Set<MLSCodeSmell> setOfSmells) {
 		this.setOfSmells = setOfSmells;
 	}
 }

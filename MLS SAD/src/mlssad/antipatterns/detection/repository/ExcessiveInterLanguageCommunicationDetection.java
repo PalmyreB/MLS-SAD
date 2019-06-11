@@ -65,8 +65,8 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 
 				for (int j = 0; j < nbOfCallsToThisMethod; j++) {
 					String thisClass = xPath.evaluate("ancestor::class/name", callList.item(j));
-					MLSAntiPattern thisAntiPattern = new MLSAntiPattern(this.getAntiPatternName(), null,
-							thisNativeMethod, thisClass, thisPackage, filePath);
+					MLSAntiPattern thisAntiPattern = new MLSAntiPattern(this.getAntiPatternName(), "", thisNativeMethod,
+							thisClass, thisPackage, filePath);
 					allNativeCalls.add(thisAntiPattern);
 
 					/*

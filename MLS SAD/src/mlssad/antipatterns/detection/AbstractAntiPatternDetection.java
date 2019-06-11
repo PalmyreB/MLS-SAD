@@ -10,18 +10,18 @@
  ******************************************************************************/
 package mlssad.antipatterns.detection;
 
-import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.w3c.dom.Document;
 
+import mlssad.kernel.impl.MLSAntiPattern;
+
 public abstract class AbstractAntiPatternDetection {
-	private Set setOfAntiPatterns;
+	private Set<MLSAntiPattern> setOfAntiPatterns;
 
 	public abstract void detect(final Document cXml, final Document javaXml);
 
-	public Set getAntiPatterns() {
+	public Set<MLSAntiPattern> getAntiPatterns() {
 		return this.setOfAntiPatterns;
 	}
 
@@ -35,11 +35,9 @@ public abstract class AbstractAntiPatternDetection {
 //		try {
 //			if (this.setOfAntiPatterns == null) {
 //				aWriter.println();
-//				aWriter
-//					.println("# Method performDetection() must be called before outputing results.");
+//				aWriter.println("# Method performDetection() must be called before outputing results.");
 //				aWriter.println();
-//			}
-//			else {
+//			} else {
 //				aWriter.println();
 //				aWriter.println("# Results of the detection ");
 //				aWriter.println();
@@ -49,8 +47,7 @@ public abstract class AbstractAntiPatternDetection {
 //				while (iterator.hasNext()) {
 //					final IAntiPattern ant = (IAntiPattern) iterator.next();
 //					count++;
-//					aWriter.println("\n#" + " ------>" + ant.getName()
-//							+ " num: " + count);
+//					aWriter.println("\n#" + " ------>" + ant.getName() + " num: " + count);
 //					aWriter.println();
 //
 //					aWriter.println(count + ".100.Name = " + ant.getName());
@@ -64,15 +61,12 @@ public abstract class AbstractAntiPatternDetection {
 //			}
 //
 //			aWriter.close();
-//		}
-//		catch (final NumberFormatException e) {
-//			ProxyConsole
-//				.getInstance()
-//				.errorOutput()
-//				.println("Format error in input file: " + e);
+//		} catch (final NumberFormatException e) {
+//			ProxyConsole.getInstance().errorOutput().println("Format error in input file: " + e);
 //		}
 //	}
-	protected void setSetOfAntiPatterns(final Set setOfAntiPatterns) {
+
+	protected void setSetOfAntiPatterns(final Set<MLSAntiPattern> setOfAntiPatterns) {
 		this.setOfAntiPatterns = setOfAntiPatterns;
 	}
 }

@@ -14,6 +14,8 @@ import java.util.Set;
 
 import org.w3c.dom.Document;
 
+import mlssad.kernel.impl.MLSCodeSmell;
+
 //import util.help.IHelpURL;
 
 public interface ICodeSmellDetection /* extends IHelpURL */ {
@@ -21,7 +23,7 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 
 	String getName();
 
-	Set<?> getCodeSmells();
+	Set<MLSCodeSmell> getCodeSmells();
 
 	String FUNC_QUERY = "ancestor::function/name";
 	String CLASS_QUERY = "ancestor::class/name";
