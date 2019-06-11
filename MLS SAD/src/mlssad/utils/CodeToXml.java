@@ -68,7 +68,7 @@ public class CodeToXml {
 
 		String archiveName = null;
 		try {
-			archiveName = files.get(0).getParent() + ".tar.gz";
+			archiveName = files.get(0) + ".tar.gz";
 		} catch (IndexOutOfBoundsException e) {
 			System.out.println(
 					"The function parseArchive in class codeToXml should have at least one argument with a qualified name");
@@ -115,6 +115,7 @@ public class CodeToXml {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		new File(archiveName).delete();
 		return xmlDocument;
 	}
 
