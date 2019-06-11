@@ -2,10 +2,10 @@ package mlssad.codesmells.test;
 
 import junit.framework.Test;
 
-public final class TestMLSSAD extends junit.framework.TestSuite {
+public final class TestSuiteMLSCodeSmells extends junit.framework.TestSuite {
 	public static Test suite() {
 
-		final TestMLSSAD suite = new TestMLSSAD();
+		final TestSuiteMLSCodeSmells suite = new TestSuiteMLSCodeSmells();
 
 		suite.addTestSuite(TestCaseAssumingSelfMultiLanguageReturnValues.class);
 		suite.addTestSuite(TestCaseHardCodingLibraries.class);
