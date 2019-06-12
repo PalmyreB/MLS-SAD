@@ -111,7 +111,7 @@ public class MLSAntiPattern {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ Anti-Pattern");
+		sb.append("{ Anti-Pattern \"" + antiPatternName + "\"");
 		if(!variableName.isEmpty())
 			sb.append("\n\tVariable: " + variableName);
 		if(!methodName.isEmpty())

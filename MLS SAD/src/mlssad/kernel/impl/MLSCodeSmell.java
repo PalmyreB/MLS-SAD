@@ -111,7 +111,7 @@ public class MLSCodeSmell {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ Code Smell");
+		sb.append("{ Code Smell \"" + codeSmellName + "\"");
 		if (!variableName.isEmpty())
 			sb.append("\n\tVariable: " + variableName);
 		if (!methodName.isEmpty())
