@@ -23,12 +23,11 @@ public class CodeToXml {
 
 	String srcmlPath = "../MLS SAD/rsc/srcML 0.9.5/bin/srcml";
 
-	public Document parse(String path) {
-		File file = new File(path);
-		if (file.isDirectory())
-			return this.parseArchive(path);
+	public Document parse(String... fileNames) {
+		if (fileNames.length == 1)
+			return this.parseSingleDocument(fileNames[0]);
 		else
-			return this.parseSingleDocument(path);
+			return this.parseArchive(fileNames);
 	};
 
 	public Document parseSingleDocument(String fileName) {
