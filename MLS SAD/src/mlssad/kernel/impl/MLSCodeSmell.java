@@ -1,7 +1,6 @@
 package mlssad.kernel.impl;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class MLSCodeSmell {
@@ -111,29 +110,17 @@ public class MLSCodeSmell {
 
 	@Override
 	public String toString() {
-//		 TODO Clearly indicate which element is what
-//		 Possible output:
-//		 {
-//			CodeSmell: "";
-//			Variable: "";
-//			...
-//		}
-		List<String> elements = this.getElementsList();
 		StringBuilder sb = new StringBuilder();
-		Iterator<String> it = elements.iterator();
-		boolean firstEl = true;
-
-		while (it.hasNext()) {
-			String el = it.next();
-			if (el != null && !el.equals("")) {
-				if (!firstEl) {
-					sb.append(".");
-				} else {
-					firstEl = false;
-				}
-				sb.append(el);
-			}
-		}
+		sb.append("{ Code Smell");
+		if (!variableName.isEmpty())
+			sb.append("\n\tVariable: " + variableName);
+		if (!methodName.isEmpty())
+			sb.append("\n\tMethod: " + methodName);
+		if (!className.isEmpty())
+			sb.append("\n\tClass: " + className);
+		if (!packageName.isEmpty())
+			sb.append("\n\tPackage: " + packageName);
+		sb.append("\n}");
 		return sb.toString();
 	}
 

@@ -28,21 +28,25 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 	}
 
 	public void detect(final Document cXml, final Document javaXml) {
-		// TODO Analyze function by function
+		// INFO
 		Set<MLSCodeSmell> unusedParamsSet = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Document xmlDocument;
 		String paramQuery;
+		// Analyze C or Java, depending on what code is provided
 		if (cXml == null) {
 			xmlDocument = javaXml;
-			paramQuery = "//function/parameter_list/parameter/decl/name";
+			paramQuery = "./parameter_list/parameter/decl/name";
 		} else {
 			xmlDocument = cXml;
 			// Skip first two parameters, which are the JNI environment and the class for a
 			// static method or the object for a non-static method
-			paramQuery = "//function/parameter_list/parameter[position()>2]/decl/name";
+			paramQuery = "./parameter_list/parameter[position()>2]/decl/name";
 		}
-		String varQuery = "//function//expr/name";
+		String funcQuery = "//function";
+		// Query to select variables used in a function
+		String varQuery = "ancestor::function//expr/name";
+		// Query to select parameters that are not used as a variable
 		String interQuery = String.format("%s[not(. = %s)]", paramQuery, varQuery);
 
 		try {
@@ -50,17 +54,23 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-			String filePath = FILEPATH_EXP.evaluate(xmlDocument);
-			NodeList nodeList = (NodeList) xPath.evaluate(interQuery, xmlDocument, XPathConstants.NODESET);
-			int length = nodeList.getLength();
-			for (int i = 0; i < length; i++) {
-				Node thisNode = nodeList.item(i);
-				String thisParam = thisNode.getTextContent();
-				String thisFunc = FUNC_EXP.evaluate(thisNode);
-				String thisClass = CLASS_EXP.evaluate(thisNode);
-				String thisPackage = PACKAGE_EXP.evaluate(thisNode);
-				unusedParamsSet.add(new MLSCodeSmell(this.getCodeSmellName(), thisParam, thisFunc, thisClass,
-						thisPackage, filePath));
+
+			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, xmlDocument, XPathConstants.NODESET);
+			final int funcLength = funcList.getLength();
+			for (int i = 0; i < funcLength; i++) {
+				NodeList nodeList = (NodeList) xPath.evaluate(interQuery, funcList.item(i), XPathConstants.NODESET);
+				final int length = nodeList.getLength();
+
+				for (int j = 0; j < length; j++) {
+					Node thisNode = nodeList.item(j);
+					String thisParam = thisNode.getTextContent();
+					String thisFunc = FUNC_EXP.evaluate(thisNode);
+					String thisClass = CLASS_EXP.evaluate(thisNode);
+					String thisPackage = PACKAGE_EXP.evaluate(thisNode);
+					String filePath = FILEPATH_EXP.evaluate(xmlDocument);
+					unusedParamsSet.add(new MLSCodeSmell(this.getCodeSmellName(), thisParam, thisFunc, thisClass,
+							thisPackage, filePath));
+				}
 			}
 			this.setSetOfSmells(unusedParamsSet);
 		} catch (XPathExpressionException e) {

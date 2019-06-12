@@ -87,13 +87,13 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 					 * SECOND CASE Calls to different native methods with at least one variable in
 					 * common
 					 */
-					// TODO Do it separately for each class
 					NodeList argList = (NodeList) xPath.evaluate("argument_list/argument/expr/name", callList.item(j),
 							XPathConstants.NODESET);
 					for (int k = 0; k < argList.getLength(); k++) {
 						String var = argList.item(k).getTextContent();
 						MLSAntiPattern oldValue = variablesAsArguments.put(var, thisAntiPattern);
-						if (oldValue != null && !oldValue.equals(thisAntiPattern)) {
+						if (oldValue != null && !oldValue.equals(thisAntiPattern)
+								&& oldValue.getClassName().equals(thisAntiPattern.getClassName())) {
 							antiPatternSet.add(oldValue);
 							antiPatternSet.add(thisAntiPattern);
 						}

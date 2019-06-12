@@ -34,13 +34,14 @@ public abstract class AbstractCodeSmellTestCase extends TestCase {
 	public void testCodeSmells() {
 		Document cXml = null;
 		Document javaXml = null;
-		if(aPathC != null)
+		if (aPathC != null)
 			cXml = new CodeToXml().parse(aPathC);
-		if(aPathJava != null)
+		if (aPathJava != null)
 			javaXml = new CodeToXml().parse(aPathJava);
 		detector.detect(cXml, javaXml);
 
+		for(MLSCodeSmell cs : detector.getCodeSmells()) System.out.println(cs);
 		assertEquals(expectedSmells.size(), detector.getCodeSmells().size());
-		assertEquals(detector.getCodeSmells(), expectedSmells);
+		assertEquals(expectedSmells, detector.getCodeSmells());
 	}
 }
