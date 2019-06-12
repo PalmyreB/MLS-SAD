@@ -10,6 +10,7 @@
  ******************************************************************************/
 package mlssad.codesmells.detection;
 
+import java.io.PrintWriter;
 import java.util.Set;
 
 import org.w3c.dom.Document;
@@ -30,6 +31,6 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 	String PACKAGE_QUERY = "//package/name";
 	String FILEPATH_QUERY = "//unit/@filename";
 
-//	void output(final PrintWriter aWriter);
+	void output(final PrintWriter aWriter);
 	void detect(final Document cXml, final Document javaXml);
 }

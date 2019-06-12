@@ -1,5 +1,6 @@
 package mlssad.antipatterns.detection;
 
+import java.io.PrintWriter;
 import java.util.Set;
 
 import org.w3c.dom.Document;
@@ -22,7 +23,8 @@ public interface IAntiPatternDetection {
 	String PACKAGE_QUERY = "preceding-sibling::package/name";
 	String FILEPATH_QUERY = "ancestor::unit/@filename";
 
-//		void output(final PrintWriter aWriter);
+	void output(final PrintWriter aWriter);
+
 	void detect(final Document cXml, final Document javaXml);
 
 }

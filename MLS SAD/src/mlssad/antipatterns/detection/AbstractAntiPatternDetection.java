@@ -10,6 +10,8 @@
  ******************************************************************************/
 package mlssad.antipatterns.detection;
 
+import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.w3c.dom.Document;
@@ -31,40 +33,19 @@ public abstract class AbstractAntiPatternDetection {
 
 	public abstract String getName();
 
-//	public void output(final PrintWriter aWriter) {
-//		try {
-//			if (this.setOfAntiPatterns == null) {
-//				aWriter.println();
-//				aWriter.println("# Method performDetection() must be called before outputing results.");
-//				aWriter.println();
-//			} else {
-//				aWriter.println();
-//				aWriter.println("# Results of the detection ");
-//				aWriter.println();
-//
-//				final Iterator iterator = this.setOfAntiPatterns.iterator();
-//				int count = 0;
-//				while (iterator.hasNext()) {
-//					final IAntiPattern ant = (IAntiPattern) iterator.next();
-//					count++;
-//					aWriter.println("\n#" + " ------>" + ant.getName() + " num: " + count);
-//					aWriter.println();
-//
-//					aWriter.println(count + ".100.Name = " + ant.getName());
-//					final Iterator iter2 = ant.listOfCodeSmells().iterator();
-//					while (iter2.hasNext()) {
-//						final ICodeSmell codeSmell = (ICodeSmell) iter2.next();
-//						aWriter.println(codeSmell.toString(count));
-//					}
-//				}
-//				aWriter.println("\n\n#----> Total:" + count);
-//			}
-//
-//			aWriter.close();
-//		} catch (final NumberFormatException e) {
-//			ProxyConsole.getInstance().errorOutput().println("Format error in input file: " + e);
-//		}
-//	}
+	public void output(final PrintWriter aWriter) {
+		try {
+			int count = 0;
+			final Iterator<MLSAntiPattern> iter = this.getAntiPatterns().iterator();
+			while (iter.hasNext()) {
+				final MLSAntiPattern antiPattern = iter.next();
+				count++;
+				aWriter.println("AP" + count + "," + antiPattern.toCSVLine());
+			}
+		} catch (final NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
 
 	protected void setSetOfAntiPatterns(final Set<MLSAntiPattern> setOfAntiPatterns) {
 		this.setOfAntiPatterns = setOfAntiPatterns;

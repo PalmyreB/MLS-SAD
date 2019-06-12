@@ -1,5 +1,9 @@
 package mlssad;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,8 +13,6 @@ import mlssad.antipatterns.detection.IAntiPatternDetection;
 import mlssad.antipatterns.detection.repository.*;
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.codesmells.detection.repository.*;
-import mlssad.kernel.impl.MLSAntiPattern;
-import mlssad.kernel.impl.MLSCodeSmell;
 import mlssad.utils.CodeToXml;
 
 public class DetectCodeSmellsAndAntiPatterns {
@@ -36,20 +38,33 @@ public class DetectCodeSmellsAndAntiPatterns {
 		antiPatternDetectors.add(new TooMuchClusteringDetection());
 		antiPatternDetectors.add(new TooMuchScatteringDetection());
 
-		String path = args[0];
-		Document cXml = new CodeToXml().parse(path);
-		Document javaXml = cXml;
+		CodeToXml ctx = new CodeToXml();
+		Document cXml = ctx.parse(args[0]);
+		Document javaXml;
+		if (args.length > 1)
+			javaXml = ctx.parse(args[1]);
+		else
+			javaXml = cXml;
 
-		for (ICodeSmellDetection detector : codeSmellDetectors) {
-			detector.detect(cXml, javaXml);
-			for (MLSCodeSmell cs : detector.getCodeSmells())
-				System.out.println(cs);
-		}
+		try {
+			PrintWriter outputWriter = new PrintWriter(
+					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)));
+			outputWriter.println("ID,Code smell name,Variable,Method,Class,Package,File");
+			for (ICodeSmellDetection detector : codeSmellDetectors) {
+				detector.detect(cXml, javaXml);
+				detector.output(outputWriter);
+			}
 
-		for (IAntiPatternDetection detector : antiPatternDetectors) {
-			detector.detect(cXml, javaXml);
-			for (MLSAntiPattern ap : detector.getAntiPatterns())
-				System.out.println(ap);
+			outputWriter.println("ID,Anti-pattern name,Variable,Method,Class,Package,File");
+			for (IAntiPatternDetection detector : antiPatternDetectors) {
+				detector.detect(cXml, javaXml);
+				detector.output(outputWriter);
+			}
+
+			outputWriter.close();
+		} catch (IOException e) {
+			System.out.println("Cannot create output file");
+			e.printStackTrace();
 		}
 	}
 }

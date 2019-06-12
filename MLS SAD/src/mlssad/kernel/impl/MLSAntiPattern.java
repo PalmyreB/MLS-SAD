@@ -112,15 +112,23 @@ public class MLSAntiPattern {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ Anti-Pattern \"" + antiPatternName + "\"");
-		if(!variableName.isEmpty())
+		if (!variableName.isEmpty())
 			sb.append("\n\tVariable: " + variableName);
-		if(!methodName.isEmpty())
+		if (!methodName.isEmpty())
 			sb.append("\n\tMethod: " + methodName);
-		if(!className.isEmpty())
+		if (!className.isEmpty())
 			sb.append("\n\tClass: " + className);
-		if(!packageName.isEmpty())
+		if (!packageName.isEmpty())
 			sb.append("\n\tPackage: " + packageName);
+		if (!filePath.isEmpty())
+			sb.append("\n\tFile path: " + filePath);
 		sb.append("\n}");
 		return sb.toString();
+	}
+
+	public String toCSVLine() {
+		List<String> elements = Arrays.asList(antiPatternName, variableName, methodName, className, packageName,
+				filePath);
+		return String.join(",", elements);
 	}
 }

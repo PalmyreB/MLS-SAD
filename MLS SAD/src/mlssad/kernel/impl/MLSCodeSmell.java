@@ -120,8 +120,16 @@ public class MLSCodeSmell {
 			sb.append("\n\tClass: " + className);
 		if (!packageName.isEmpty())
 			sb.append("\n\tPackage: " + packageName);
+		if (!filePath.isEmpty())
+			sb.append("\n\tFile path: " + filePath);
 		sb.append("\n}");
 		return sb.toString();
+	}
+
+	public String toCSVLine() {
+		List<String> elements = Arrays.asList(codeSmellName, variableName, methodName, className, packageName,
+				filePath);
+		return String.join(",", elements);
 	}
 
 }

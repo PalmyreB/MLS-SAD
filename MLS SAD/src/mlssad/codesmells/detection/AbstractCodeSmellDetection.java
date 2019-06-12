@@ -10,6 +10,8 @@
  ******************************************************************************/
 package mlssad.codesmells.detection;
 
+import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -51,29 +53,19 @@ public abstract class AbstractCodeSmellDetection {
 	/**
 	 * Return a file that displays all the smells detected
 	 */
-//	public void output(final PrintWriter aWriter) {
-//		try {
-//			aWriter.println();
-//			aWriter.println("Detection");
-//			aWriter.println();
-//
-//			final Iterator iter = this.getCodeSmells().iterator();
-//			int count = 0;
-//			while (iter.hasNext()) {
-//				final ICodeSmell codeSmell = (ICodeSmell) iter.next();
-//
-//				count++;
-//
-//				aWriter.println(codeSmell.toString(count));
-//
-//			}
-//			aWriter.println("----> Total:" + count);
-//
-//			aWriter.close();
-//		} catch (final NumberFormatException e) {
-//			e.printStackTrace(ProxyConsole.getInstance().errorOutput());
-//		}
-//	}
+	public void output(final PrintWriter aWriter) {
+		try {
+			int count = 0;
+			final Iterator<MLSCodeSmell> iter = this.getCodeSmells().iterator();
+			while (iter.hasNext()) {
+				final MLSCodeSmell codeSmell = iter.next();
+				count++;
+				aWriter.println("CS" + count + "," + codeSmell.toCSVLine());
+			}
+		} catch (final NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
 
 //	protected void setBoxPlot(final BoxPlot boxPlot) {
 //		this.boxPlot = boxPlot;
