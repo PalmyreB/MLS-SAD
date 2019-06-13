@@ -18,6 +18,7 @@ import mlssad.utils.CodeToXml;
 public class DetectCodeSmellsAndAntiPatterns {
 
 	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
 		Set<ICodeSmellDetection> codeSmellDetectors = new HashSet<>();
 		Set<IAntiPatternDetection> antiPatternDetectors = new HashSet<>();
 
@@ -43,8 +44,10 @@ public class DetectCodeSmellsAndAntiPatterns {
 
 		try {
 			int id = 0;
+			// FileWriter(..., false): no auto-append, write at the beginning of the file
+			// PrintWriter(..., false): no autoflush for performance reason
 			PrintWriter outputWriter = new PrintWriter(
-					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)));
+					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)), false);
 			outputWriter.println("ID,Name,Variable,Method,Class,Package,File");
 			for (ICodeSmellDetection detector : codeSmellDetectors) {
 				detector.detect(xml);
@@ -57,8 +60,9 @@ public class DetectCodeSmellsAndAntiPatterns {
 				detector.output(outputWriter, id);
 				id += detector.getAntiPatterns().size();
 			}
-
+			outputWriter.flush();
 			outputWriter.close();
+			System.out.println(System.currentTimeMillis() - start);
 		} catch (IOException e) {
 			System.out.println("Cannot create output file");
 			e.printStackTrace();
