@@ -7,7 +7,6 @@ import org.w3c.dom.Document;
 
 import mlssad.antipatterns.detection.repository.ExcessiveInterLanguageCommunicationDetection;
 import mlssad.kernel.impl.MLSAntiPattern;
-import mlssad.utils.CodeToXml;
 
 public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPatternTestCase {
 	String expectedAntiPattern = "ExcessiveInterLanguageCommunication";
@@ -26,12 +25,12 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testSameMethod() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication2.java";
-		Document javaXml = new CodeToXml().parse(aPathJava);
+		Document javaXml = ctx.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		expectedSmells.add(
 				new MLSAntiPattern(expectedAntiPattern, "", "square", expectedClass + 2, expectedPackage, aPathJava));
 
-		detector.detect(null, javaXml);
+		detector.detect(javaXml);
 
 		assertEquals(expectedSmells.size(), detector.getAntiPatterns().size());
 		assertEquals(detector.getAntiPatterns(), expectedSmells);
@@ -39,14 +38,16 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testSameVariable() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication3.java";
-		Document javaXml = new CodeToXml().parse(aPathJava);
+		Document javaXml = ctx.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		expectedSmells.add(
 				new MLSAntiPattern(expectedAntiPattern, "", "square", expectedClass + 3, expectedPackage, aPathJava));
 		expectedSmells.add(new MLSAntiPattern(expectedAntiPattern, "", "factorial", expectedClass + 3, expectedPackage,
 				aPathJava));
 
-		detector.detect(null, javaXml);
+		detector.detect(javaXml);
+		
+		for (MLSAntiPattern ap : detector.getAntiPatterns()) System.out.println(ap);
 
 		assertEquals(expectedSmells.size(), detector.getAntiPatterns().size());
 		assertEquals(expectedSmells, detector.getAntiPatterns());
@@ -54,13 +55,13 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testTooManyNativeCalls() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication4.java";
-		Document javaXml = new CodeToXml().parse(aPathJava);
+		Document javaXml = ctx.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		for (char letter = 'a'; letter <= 'z'; letter++)
 			expectedSmells.add(new MLSAntiPattern(expectedAntiPattern, "", String.valueOf(letter), expectedClass + 4,
 					expectedPackage, aPathJava));
 
-		detector.detect(null, javaXml);
+		detector.detect(javaXml);
 
 		assertEquals(expectedSmells.size(), detector.getAntiPatterns().size());
 		assertEquals(expectedSmells, detector.getAntiPatterns());

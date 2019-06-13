@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import mlssad.antipatterns.detection.AbstractAntiPatternDetection;
@@ -31,7 +31,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 	}
 
 	@Override
-	public void detect(Document cXml, Document javaXml) {
+	public void detect(Document xml) {
 		/*
 		 * UNTREATED CASE Calls in both ways: Java to C and C to Java
 		 */
@@ -44,61 +44,71 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 		Set<MLSAntiPattern> antiPatternSet = new HashSet<>();
 		Set<MLSAntiPattern> allNativeCalls = new HashSet<>();
 		Map<String, MLSAntiPattern> variablesAsArguments = new HashMap<>();
-		XPath xPath = XPathFactory.newInstance().newXPath();
+
 		int nbOfNativeCalls = 0;
 
 		try {
-			String thisPackage = xPath.evaluate("//package/name", javaXml);
-			String filePath = xPath.evaluate("//unit/@filename", javaXml);
+			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
+			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
 
-			// Native method declaration
-			NodeList nativeDeclList = (NodeList) xPath.evaluate("//function_decl[specifier='native']/name", javaXml,
-					XPathConstants.NODESET);
+			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
+			final int javaLength = javaList.getLength();
 
-			for (int i = 0; i < nativeDeclList.getLength(); i++) {
-				String thisNativeMethod = nativeDeclList.item(i).getTextContent();
-				String callQuery = String.format("//call[name='%s'] | //call[name/name='%s']", thisNativeMethod,
-						thisNativeMethod);
-				NodeList callList = (NodeList) xPath.evaluate(callQuery, javaXml, XPathConstants.NODESET);
-				int nbOfCallsToThisMethod = callList.getLength();
-				nbOfNativeCalls += nbOfCallsToThisMethod;
+			for (int i = 0; i < javaLength; i++) {
+				Node javaXml = javaList.item(i);
+				String thisPackage = PACKAGE_EXP.evaluate(javaXml);
+				String filePath = FILEPATH_EXP.evaluate(javaXml);
 
-				for (int j = 0; j < nbOfCallsToThisMethod; j++) {
-					String thisClass = xPath.evaluate("ancestor::class/name", callList.item(j));
-					MLSAntiPattern thisAntiPattern = new MLSAntiPattern(this.getAntiPatternName(), "", thisNativeMethod,
-							thisClass, thisPackage, filePath);
-					allNativeCalls.add(thisAntiPattern);
+				// Native method declaration
+				NodeList nativeDeclList = (NodeList) xPath.evaluate(
+						"descendant::function_decl[specifier='native']/name", javaXml, XPathConstants.NODESET);
 
-					/*
-					 * FIRST CASE Too many calls to a native method
-					 */
-					if (nbOfCallsToThisMethod > minNbOfCallsToSameMethod) {
-						antiPatternSet.add(thisAntiPattern);
-					}
-					// Check whether the method is called in a loop, in which case it is considered
-					// as called too much time in a first approximation
-					NodeList loops = (NodeList) xPath.evaluate("ancestor::for | ancestor::while", callList.item(j),
-							XPathConstants.NODESET);
-					if (loops.getLength() > 0) {
-						antiPatternSet.add(thisAntiPattern);
-					}
+				for (int j = 0; j < nativeDeclList.getLength(); j++) {
+					String thisNativeMethod = nativeDeclList.item(j).getTextContent();
+					String callQuery = String.format("descendant::call[name='%s'] | descendant::call[name/name='%s']",
+							thisNativeMethod, thisNativeMethod);
+					NodeList callList = (NodeList) xPath.evaluate(callQuery, javaXml, XPathConstants.NODESET);
+					int nbOfCallsToThisMethod = callList.getLength();
+					nbOfNativeCalls += nbOfCallsToThisMethod;
 
-					/*
-					 * SECOND CASE Calls to different native methods with at least one variable in
-					 * common
-					 */
-					NodeList argList = (NodeList) xPath.evaluate("argument_list/argument/expr/name", callList.item(j),
-							XPathConstants.NODESET);
-					for (int k = 0; k < argList.getLength(); k++) {
-						String var = argList.item(k).getTextContent();
-						MLSAntiPattern oldValue = variablesAsArguments.put(var, thisAntiPattern);
-						if (oldValue != null && !oldValue.equals(thisAntiPattern)
-								&& oldValue.getClassName().equals(thisAntiPattern.getClassName())) {
-							antiPatternSet.add(oldValue);
+					for (int k = 0; k < nbOfCallsToThisMethod; k++) {
+						String thisClass = CLASS_EXP.evaluate(callList.item(k));
+						MLSAntiPattern thisAntiPattern = new MLSAntiPattern(this.getAntiPatternName(), "",
+								thisNativeMethod, thisClass, thisPackage, filePath);
+						allNativeCalls.add(thisAntiPattern);
+
+						/*
+						 * FIRST CASE Too many calls to a native method
+						 */
+						if (nbOfCallsToThisMethod > minNbOfCallsToSameMethod) {
 							antiPatternSet.add(thisAntiPattern);
 						}
-					}
+						// Check whether the method is called in a loop, in which case it is considered
+						// as called too much time in a first approximation
+						NodeList loops = (NodeList) xPath.evaluate("ancestor::for | ancestor::while", callList.item(k),
+								XPathConstants.NODESET);
+						if (loops.getLength() > 0) {
+							antiPatternSet.add(thisAntiPattern);
+						}
 
+						/*
+						 * SECOND CASE Calls to different native methods with at least one variable in
+						 * common
+						 */
+						NodeList argList = (NodeList) xPath.evaluate("argument_list/argument/expr/name",
+								callList.item(k), XPathConstants.NODESET);
+						for (int l = 0; l < argList.getLength(); l++) {
+							String var = argList.item(l).getTextContent();
+							MLSAntiPattern oldValue = variablesAsArguments.put(var, thisAntiPattern);
+							if (oldValue != null && !oldValue.equals(thisAntiPattern)
+									&& oldValue.getClassName().equals(thisAntiPattern.getClassName())) {
+								antiPatternSet.add(oldValue);
+								antiPatternSet.add(thisAntiPattern);
+							}
+						}
+
+					}
 				}
 			}
 

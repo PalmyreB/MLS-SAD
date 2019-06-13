@@ -38,8 +38,7 @@ public abstract class AbstractCodeSmellTestCase extends TestCase {
 	}
 
 	public void testCodeSmells() {
-		final Document xml = ctx.parse(aPathC, aPathJava);
-		detector.detect(xml);
+		detector.detect(ctx.parse(aPathC, aPathJava));
 
 		assertEquals(expectedSmells.size(), detector.getCodeSmells().size());
 		assertEquals(expectedSmells, detector.getCodeSmells());

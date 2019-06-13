@@ -14,14 +14,19 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 
 import mlssad.kernel.impl.MLSAntiPattern;
 
 public abstract class AbstractAntiPatternDetection {
+	protected XPath xPath = XPathFactory.newInstance().newXPath();
+
 	private Set<MLSAntiPattern> setOfAntiPatterns;
 
-	public abstract void detect(final Document cXml, final Document javaXml);
+	public abstract void detect(final Document xml);
 
 	public Set<MLSAntiPattern> getAntiPatterns() {
 		return this.setOfAntiPatterns;
