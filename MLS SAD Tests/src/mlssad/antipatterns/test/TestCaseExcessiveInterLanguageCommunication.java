@@ -46,8 +46,6 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 				aPathJava));
 
 		detector.detect(javaXml);
-		
-		for (MLSAntiPattern ap : detector.getAntiPatterns()) System.out.println(ap);
 
 		assertEquals(expectedSmells.size(), detector.getAntiPatterns().size());
 		assertEquals(expectedSmells, detector.getAntiPatterns());

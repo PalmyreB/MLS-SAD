@@ -47,16 +47,12 @@ public class TooMuchClusteringDetection extends AbstractAntiPatternDetection imp
 				Node thisClassNode = classList.item(j);
 				// Native method declaration
 				NodeList nativeDeclList = (NodeList) NATIVE_EXP.evaluate(thisClassNode, XPathConstants.NODESET);
-				final int nativeDeclLength = nativeDeclList.getLength();
-				if (nativeDeclLength > minNbOfMethodsPerClass) {
+				if (nativeDeclList.getLength() > minNbOfMethodsPerClass) {
 					String thisClass = NAME_EXP.evaluate(thisClassNode);
 					String thisPackage = PACKAGE_EXP.evaluate(thisClassNode);
 					String thisFilePath = FILEPATH_EXP.evaluate(thisClassNode);
-					for (int k = 0; k < nativeDeclLength; k++) {
-						String thisFunction = nativeDeclList.item(k).getTextContent();
-						antiPatternSet.add(new MLSAntiPattern(this.getAntiPatternName(), "", thisFunction, thisClass,
-								thisPackage, thisFilePath));
-					}
+					antiPatternSet.add(new MLSAntiPattern(this.getAntiPatternName(), "", "", thisClass, thisPackage,
+							thisFilePath));
 				}
 			}
 //			}
