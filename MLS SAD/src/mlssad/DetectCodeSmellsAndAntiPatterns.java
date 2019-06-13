@@ -39,27 +39,22 @@ public class DetectCodeSmellsAndAntiPatterns {
 		antiPatternDetectors.add(new TooMuchScatteringDetection());
 
 		CodeToXml ctx = new CodeToXml();
-		Document cXml = ctx.parse(args[0]);
-		Document javaXml;
-		if (args.length > 1)
-			javaXml = ctx.parse(args[1]);
-		else
-			javaXml = cXml;
+		Document xml = ctx.parse(args);
 
 		try {
 			PrintWriter outputWriter = new PrintWriter(
 					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)));
 			outputWriter.println("ID,Code smell name,Variable,Method,Class,Package,File");
 			for (ICodeSmellDetection detector : codeSmellDetectors) {
-				detector.detect(cXml, javaXml);
+				detector.detect(xml);
 				detector.output(outputWriter);
 			}
 
-			outputWriter.println("ID,Anti-pattern name,Variable,Method,Class,Package,File");
-			for (IAntiPatternDetection detector : antiPatternDetectors) {
-				detector.detect(cXml, javaXml);
-				detector.output(outputWriter);
-			}
+//			outputWriter.println("ID,Anti-pattern name,Variable,Method,Class,Package,File");
+//			for (IAntiPatternDetection detector : antiPatternDetectors) {
+//				detector.detect(xml);
+//				detector.output(outputWriter);
+//			}
 
 			outputWriter.close();
 		} catch (IOException e) {

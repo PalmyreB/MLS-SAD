@@ -5,11 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -25,9 +23,8 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 		return "UnusedImplementation";
 	}
 
-	public void detect(final Document cXml, final Document javaXml) {
+	public void detect(final Document xml) {
 		Map<String, MLSCodeSmell> unusedImplMap = new HashMap<>();
-		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		// Native method declaration
 		String declQuery = "//function_decl[specifier='native']/name";
@@ -40,34 +37,50 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-			NodeList declList = (NodeList) xPath.evaluate(declQuery, javaXml, XPathConstants.NODESET);
-			NodeList implList = (NodeList) xPath.evaluate(implQuery, cXml, XPathConstants.NODESET);
-			NodeList callList = (NodeList) xPath.evaluate(callQuery, javaXml, XPathConstants.NODESET);
+
+			NodeList cList = (NodeList) xPath.evaluate(C_FILES_QUERY, xml, XPathConstants.NODESET);
+			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
+			final int cLength = cList.getLength();
+			final int javaLength = javaList.getLength();
+
 			Set<String> implSet = new HashSet<>();
 			Set<String> callSet = new HashSet<>();
-			final int declLength = declList.getLength();
-			final int implLength = implList.getLength();
-			final int callLength = callList.getLength();
-			int i;
-			for (i = 0; i < declLength; i++) {
-				Node thisNode = declList.item(i);
-				String thisNativeFunction = thisNode.getTextContent();
-				String thisClass = CLASS_EXP.evaluate(thisNode);
-				String thisPackage = PACKAGE_EXP.evaluate(thisNode);
-				String javaFilePath = FILEPATH_EXP.evaluate(thisNode);
-				unusedImplMap.put(thisNativeFunction, new MLSCodeSmell(this.getCodeSmellName(), "", thisNativeFunction,
-						thisClass, thisPackage, javaFilePath));
+
+			// List native methods declared but never called from host language
+			for (int i = 0; i < javaLength; i++) {
+				Node javaFile = javaList.item(i);
+				String javaFilePath = FILEPATH_EXP.evaluate(javaFile);
+
+				NodeList declList = (NodeList) xPath.evaluate(declQuery, javaFile, XPathConstants.NODESET);
+				NodeList callList = (NodeList) xPath.evaluate(callQuery, javaFile, XPathConstants.NODESET);
+				final int declLength = declList.getLength();
+				final int callLength = callList.getLength();
+
+				for (int j = 0; j < declLength; j++) {
+					Node thisNode = declList.item(j);
+					String thisNativeFunction = thisNode.getTextContent();
+					String thisClass = CLASS_EXP.evaluate(thisNode);
+					String thisPackage = PACKAGE_EXP.evaluate(thisNode);
+					unusedImplMap.put(thisNativeFunction, new MLSCodeSmell(this.getCodeSmellName(), "",
+							thisNativeFunction, thisClass, thisPackage, javaFilePath));
+				}
+				for (int j = 0; j < callLength; j++) {
+					callSet.add(callList.item(j).getTextContent());
+				}
 			}
-			for (i = 0; i < implLength; i++) {
-				// WARNING: This only keeps the part of the function name after the last
-				// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
-				// functions with _ in their names. This should not happen if names are written
-				// in lowerCamelCase.
-				String[] partsOfName = implList.item(i).getTextContent().split("_");
-				implSet.add(partsOfName[partsOfName.length - 1]);
-			}
-			for (i = 0; i < callLength; i++) {
-				callSet.add(callList.item(i).getTextContent());
+
+			// Check whether they are implemented
+			for (int i = 0; i < cLength; i++) {
+				NodeList implList = (NodeList) xPath.evaluate(implQuery, cList.item(i), XPathConstants.NODESET);
+				final int implLength = implList.getLength();
+				for (int j = 0; j < implLength; j++) {
+					// WARNING: This only keeps the part of the function name after the last
+					// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
+					// functions with _ in their names. This should not happen if names are written
+					// in lowerCamelCase.
+					String[] partsOfName = implList.item(j).getTextContent().split("_");
+					implSet.add(partsOfName[partsOfName.length - 1]);
+				}
 			}
 			unusedImplMap.keySet().retainAll(implSet);
 			unusedImplMap.keySet().removeAll(callSet);

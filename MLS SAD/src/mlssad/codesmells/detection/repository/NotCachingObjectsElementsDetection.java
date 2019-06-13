@@ -6,13 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
@@ -25,7 +24,7 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 		return "NotCachingObjectsElements";
 	}
 
-	public void detect(final Document cXml, final Document javaXml) {
+	public void detect(final Document xml) {
 		/*
 		 * "An abundance of GetFieldID() and GetMethodID() calls — in particular, if the
 		 * calls are for the same fields and methods — indicates that the fields and
@@ -35,12 +34,17 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 
 		Set<String> methods = new HashSet<>(Arrays.asList("GetFieldID", "GetMethodID", " GetStaticMethodID"));
 		Set<MLSCodeSmell> notCachedSet = new HashSet<>();
-		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		try {
+			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
+			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
 
-			final String cFilePath = FILEPATH_EXP.evaluate(cXml);
+			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			final int cLength = cList.getLength();
+			final int javaLength = javaList.getLength();
+
 			/*
 			 * FIRST CASE An ID is looked up in a function that is called several times
 			 */
@@ -48,20 +52,23 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			// Functions that are potentially called several times in the host language
 			String nativeDeclQuery = "//function_decl[specifier='native']/name";
 			String hostCallQuery = "//call//name[last()]";
-			NodeList nativeDeclList = (NodeList) xPath.evaluate(nativeDeclQuery, javaXml, XPathConstants.NODESET);
-			NodeList hostCallList = (NodeList) xPath.evaluate(hostCallQuery, javaXml, XPathConstants.NODESET);
-			// TODO Add case of a loop
 			Set<String> nativeDeclSet = new HashSet<String>();
 			Set<String> hostCallSet = new HashSet<String>();
 			Set<String> severalCallSet = new HashSet<String>();
-			final int nativeDeclLength = nativeDeclList.getLength();
-			final int hostCallLength = hostCallList.getLength();
-			for (int i = 0; i < nativeDeclLength; i++)
-				nativeDeclSet.add(nativeDeclList.item(i).getTextContent());
-			for (int i = 0; i < hostCallLength; i++) {
-				String thisNode = hostCallList.item(i).getTextContent();
-				if (!hostCallSet.add(thisNode))
-					severalCallSet.add(thisNode);
+			for (int i = 0; i < javaLength; i++) {
+				Node javaXml = javaList.item(i);
+				NodeList nativeDeclList = (NodeList) xPath.evaluate(nativeDeclQuery, javaXml, XPathConstants.NODESET);
+				NodeList hostCallList = (NodeList) xPath.evaluate(hostCallQuery, javaXml, XPathConstants.NODESET);
+				// TODO Add case of a loop
+				final int nativeDeclLength = nativeDeclList.getLength();
+				final int hostCallLength = hostCallList.getLength();
+				for (int j = 0; j < nativeDeclLength; j++)
+					nativeDeclSet.add(nativeDeclList.item(j).getTextContent());
+				for (int j = 0; j < hostCallLength; j++) {
+					String thisNode = hostCallList.item(j).getTextContent();
+					if (!hostCallSet.add(thisNode))
+						severalCallSet.add(thisNode);
+				}
 			}
 			nativeDeclSet.retainAll(severalCallSet);
 
@@ -77,56 +84,63 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			String nativeQuery = String.format("//function[(%s) and name != 'JNI_OnLoad']", nativeSelector);
 			String IDQuery = String.format(".//call[%s]//argument_list/argument[position() = 3]", IDSelector);
 
-			NodeList nativeList = (NodeList) xPath.evaluate(nativeQuery, cXml, XPathConstants.NODESET);
-			for (int i = 0; i < nativeList.getLength(); i++) {
-				// WARNING: This only keeps the part of the function name after the last
-				// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
-				// functions with _ in their names. This should not happen if names are written
-				// in lowerCamelCase.
-				String funcLongName = xPath.evaluate("./name", nativeList.item(i));
-				String[] partsOfName = funcLongName.split("_");
-				String funcName = partsOfName[partsOfName.length - 1];
-
-				if (nativeDeclSet.contains(funcName)) {
-					NodeList IDs = (NodeList) xPath.evaluate(IDQuery, nativeList.item(i), XPathConstants.NODESET);
-					// TODO Add code smell in Java file?
-					for (int j = 0; j < IDs.getLength(); j++)
-						notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(), IDs.item(j).getTextContent(),
-								funcLongName, "", "", cFilePath));
-				}
-			}
-
-			/*
-			 * SECOND CASE Inside a function, a same ID is looked up at least twice
-			 */
-			// We consider that the necessary fields are cached in the function JNI_OnLoad,
-			// called only once
+			// Queries used for second case detection
 			String funcQuery = "//function[name != 'JNI_OnLoad']";
 			String callTemplate = ".//call[name/name = '%s']";
 			String argsQuery = ".//argument_list";
 			String nameQuery = ".//argument_list/argument[position() = 3]";
-			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
-			final int funcLength = funcList.getLength();
-			// Analysis for each function
-			for (int i = 0; i < funcLength; i++) {
-				String funcLongName = xPath.evaluate("./name", funcList.item(i));
-				// Analysis for each Get<>ID
-				for (String method : methods) {
-					Set<NodeList> args = new HashSet<>();
-					String callQuery = String.format(callTemplate, method);
-					NodeList callList = (NodeList) xPath.evaluate(callQuery, funcList.item(i), XPathConstants.NODESET);
-					int callLength = callList.getLength();
-					for (int j = 0; j < callLength; j++) {
-						// Arguments should be treated and compared as NodeLists and not Strings, in
-						// case they do not respect the same conventions (e.g. concerning spaces)
-						NodeList theseArgs = (NodeList) xPath.evaluate(argsQuery, callList.item(j),
-								XPathConstants.NODESET);
-						if (this.setContainsNodeList(args, theseArgs))
-							notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(),
-									xPath.evaluate(nameQuery, callList.item(j)), funcLongName, "", "", cFilePath));
-						else
-							args.add(theseArgs);
+			for (int i = 0; i < cLength; i++) {
+				Node cXml = cList.item(i);
+				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
+				NodeList nativeList = (NodeList) xPath.evaluate(nativeQuery, cXml, XPathConstants.NODESET);
+				for (int j = 0; j < nativeList.getLength(); j++) {
+					// WARNING: This only keeps the part of the function name after the last
+					// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
+					// functions with _ in their names. This should not happen if names are written
+					// in lowerCamelCase.
+					String funcLongName = xPath.evaluate("./name", nativeList.item(j));
+					String[] partsOfName = funcLongName.split("_");
+					String funcName = partsOfName[partsOfName.length - 1];
+
+					if (nativeDeclSet.contains(funcName)) {
+						NodeList IDs = (NodeList) xPath.evaluate(IDQuery, nativeList.item(j), XPathConstants.NODESET);
+						// TODO Add code smell in Java file?
+						for (int k = 0; k < IDs.getLength(); k++)
+							notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(), IDs.item(k).getTextContent(),
+									funcLongName, "", "", cFilePath));
+					}
+				}
+
+				/*
+				 * SECOND CASE Inside a function, a same ID is looked up at least twice
+				 */
+				// We consider that the necessary fields are cached in the function JNI_OnLoad,
+				// called only once
+				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
+				final int funcLength = funcList.getLength();
+				// Analysis for each function
+				for (int j = 0; j < funcLength; j++) {
+					String funcLongName = xPath.evaluate("./name", funcList.item(j));
+					// Analysis for each Get<>ID
+					for (String method : methods) {
+						Set<NodeList> args = new HashSet<>();
+						String callQuery = String.format(callTemplate, method);
+						NodeList callList = (NodeList) xPath.evaluate(callQuery, funcList.item(j),
+								XPathConstants.NODESET);
+						int callLength = callList.getLength();
+						for (int k = 0; k < callLength; k++) {
+							// Arguments should be treated and compared as NodeLists and not Strings, in
+							// case they do not respect the same conventions (e.g. concerning spaces)
+							NodeList theseArgs = (NodeList) xPath.evaluate(argsQuery, callList.item(k),
+									XPathConstants.NODESET);
+							if (this.setContainsNodeList(args, theseArgs))
+								notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(),
+										xPath.evaluate(nameQuery, callList.item(k)), funcLongName, "", "", cFilePath));
+							else
+								args.add(theseArgs);
+
+						}
 					}
 				}
 			}

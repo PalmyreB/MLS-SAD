@@ -6,11 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -26,9 +24,8 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 		return "MemoryManagementMismatch";
 	}
 
-	public void detect(final Document cXml, final Document javaXml) {
+	public void detect(final Document xml) {
 		Set<MLSCodeSmell> notReleasedSet = new HashSet<>();
-		XPath xPath = XPathFactory.newInstance().newXPath();
 
 		List<String> types = Arrays.asList("StringChars", "StringUTFChars", "BooleanArrayElements", "ByteArrayElements",
 				"CharArrayElements", "ShortArrayElements", "IntArrayElements", "LongArrayElements",
@@ -40,44 +37,53 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 		String nodeWithGivenArg = "%s[argument_list/argument[2]/expr/name='%s']";
 
 		try {
+			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-			String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-			XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
+			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			final int cLength = cList.getLength();
 
-			NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
-			int funcLength = funcList.getLength();
-			// Analysis for each function
-			for (int i = 0; i < funcLength; i++) {
-				Node thisFunction = funcList.item(i);
-				String funcName = xPath.evaluate("./name", thisFunction);
-				// Analysis for each type
-				Iterator<String> it = types.iterator();
-				while (it.hasNext()) {
-					String thisType = it.next();
+			for (int i = 0; i < cLength; i++) {
+				Node cXml = cList.item(i);
+				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-					String getType = String.format("Get%s", thisType);
-					String releaseType = String.format("Release%s", thisType);
+				XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
 
-					String getCallQuery = String.format(genericCallQuery, getType);
-					String releaseCallQuery = String.format(genericCallQuery, releaseType);
+				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
+				int funcLength = funcList.getLength();
+				// Analysis for each function
+				for (int j = 0; j < funcLength; j++) {
+					Node thisFunction = funcList.item(j);
+					String funcName = xPath.evaluate("./name", thisFunction);
+					// Analysis for each type
+					Iterator<String> it = types.iterator();
+					while (it.hasNext()) {
+						String thisType = it.next();
 
-					NodeList getList = (NodeList) xPath.evaluate(getCallQuery, thisFunction, XPathConstants.NODESET);
+						String getType = String.format("Get%s", thisType);
+						String releaseType = String.format("Release%s", thisType);
 
-					MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), thisType, funcName, "", "",
-							cFilePath);
+						String getCallQuery = String.format(genericCallQuery, getType);
+						String releaseCallQuery = String.format(genericCallQuery, releaseType);
 
-					// Look for a call to the matching release function
-					// The second argument should match (name of the Java object)
-					for (int j = 0; j < getList.getLength(); j++) {
-						String secondArg = secondArgExpr.evaluate(getList.item(j));
-						String nodeWithGivenArgQuery = String.format(nodeWithGivenArg, releaseCallQuery, secondArg);
-						String matchedRelease = xPath.evaluate(nodeWithGivenArgQuery, thisFunction);
-						if (matchedRelease == "") {
-							notReleasedSet.add(codeSmell);
+						NodeList getList = (NodeList) xPath.evaluate(getCallQuery, thisFunction,
+								XPathConstants.NODESET);
+
+						MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), thisType, funcName, "", "",
+								cFilePath);
+
+						// Look for a call to the matching release function
+						// The second argument should match (name of the Java object)
+						for (int k = 0; k < getList.getLength(); k++) {
+							String secondArg = secondArgExpr.evaluate(getList.item(k));
+							String nodeWithGivenArgQuery = String.format(nodeWithGivenArg, releaseCallQuery, secondArg);
+							String matchedRelease = xPath.evaluate(nodeWithGivenArgQuery, thisFunction);
+							if (matchedRelease == "") {
+								notReleasedSet.add(codeSmell);
+							}
 						}
-					}
 
+					}
 				}
 			}
 			this.setSetOfSmells(notReleasedSet);

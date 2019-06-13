@@ -26,11 +26,16 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 
 	Set<MLSCodeSmell> getCodeSmells();
 
-	String FUNC_QUERY = "ancestor::function/name";
-	String CLASS_QUERY = "ancestor::class/name";
-	String PACKAGE_QUERY = "//package/name";
-	String FILEPATH_QUERY = "//unit/@filename";
+	final String FILE_QUERY = "//unit";
+	final String C_FILES_QUERY = "//unit[@language='C++' or @language='C']";
+	final String JAVA_FILES_QUERY = "//unit[@language='Java']";
+	final String LANGUAGE_QUERY = "@language"; // Call on unit
+	final String FUNC_QUERY = "ancestor::function/name";
+	final String CLASS_QUERY = "ancestor::class/name";
+	final String PACKAGE_QUERY = "ancestor::unit//package/name";
+	final String FILEPATH_QUERY = "@filename"; // Call on unit
 
 	void output(final PrintWriter aWriter);
-	void detect(final Document cXml, final Document javaXml);
+
+	void detect(final Document xml);
 }

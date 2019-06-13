@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
@@ -23,8 +22,7 @@ public class UnusedDeclarationDetection extends AbstractCodeSmellDetection imple
 		return "UnusedDeclaration";
 	}
 
-	public void detect(final Document cXml, final Document javaXml) {
-		XPath xPath = XPathFactory.newInstance().newXPath();
+	public void detect(final Document xml) {
 
 		// Native method declaration
 		String declQuery = "//function_decl[specifier='native']/name";
@@ -36,27 +34,43 @@ public class UnusedDeclarationDetection extends AbstractCodeSmellDetection imple
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
 
-			NodeList declList = (NodeList) xPath.evaluate(declQuery, javaXml, XPathConstants.NODESET);
-			NodeList implList = (NodeList) xPath.evaluate(implQuery, cXml, XPathConstants.NODESET);
+			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
+			NodeList cList = (NodeList) xPath.evaluate(C_FILES_QUERY, xml, XPathConstants.NODESET);
+			final int javaLength = javaList.getLength();
+			final int cLength = cList.getLength();
+
 			Map<String, MLSCodeSmell> resultMap = new HashMap<>();
-			int declLength = declList.getLength();
-			int implLength = implList.getLength();
-			int i;
-			for (i = 0; i < declLength; i++) {
-				String thisNativeFunction = declList.item(i).getTextContent();
-				String thisClass = CLASS_EXP.evaluate(declList.item(i));
-				String thisPackage = PACKAGE_EXP.evaluate(declList.item(i));
-				String javaFilePath = FILEPATH_EXP.evaluate(declList.item(i));
-				resultMap.put(thisNativeFunction, new MLSCodeSmell(this.getCodeSmellName(), "", thisNativeFunction,
-						thisClass, thisPackage, javaFilePath));
+
+			for (int i = 0; i < javaLength; i++) {
+				Node javaFile = javaList.item(i);
+				String javaFilePath = FILEPATH_EXP.evaluate(javaFile);
+				NodeList declList = (NodeList) xPath.evaluate(declQuery, javaFile, XPathConstants.NODESET);
+				int declLength = declList.getLength();
+
+				for (int j = 0; j < declLength; j++) {
+					Node thisDecl = declList.item(j);
+					String thisNativeFunction = thisDecl.getTextContent();
+					String thisClass = CLASS_EXP.evaluate(thisDecl);
+					String thisPackage = PACKAGE_EXP.evaluate(thisDecl);
+					resultMap.put(thisNativeFunction, new MLSCodeSmell(this.getCodeSmellName(), "", thisNativeFunction,
+							thisClass, thisPackage, javaFilePath));
+				}
 			}
-			for (i = 0; i < implLength; i++) {
-				// WARNING: This only keeps the part of the function name after the last
-				// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
-				// functions with _ in their names. This should not happen if names are written
-				// in lowerCamelCase.
-				String[] partsOfName = implList.item(i).getTextContent().split("_");
-				resultMap.remove(partsOfName[partsOfName.length - 1]);
+
+			for (int i = 0; i < cLength; i++) {
+				NodeList implList = (NodeList) xPath.evaluate(implQuery, cList.item(i), XPathConstants.NODESET);
+				int implLength = implList.getLength();
+
+				for (int j = 0; j < implLength; j++) {
+					// TODO Detect package and class to link to the right declaration in Java
+
+					// WARNING: This only keeps the part of the function name after the last
+					// underscore ("_") in respect to JNI syntax. Therefore, it does not work for
+					// functions with _ in their names. This should not happen if names are written
+					// in lowerCamelCase.
+					String[] partsOfName = implList.item(j).getTextContent().split("_");
+					resultMap.remove(partsOfName[partsOfName.length - 1]);
+				}
 			}
 			this.setSetOfSmells(new HashSet<>(resultMap.values()));
 		} catch (XPathExpressionException e) {

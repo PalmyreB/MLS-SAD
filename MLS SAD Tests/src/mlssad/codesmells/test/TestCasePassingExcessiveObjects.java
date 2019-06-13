@@ -11,7 +11,8 @@ public class TestCasePassingExcessiveObjects extends AbstractCodeSmellTestCase {
 		super.setUp();
 		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/PassingExcessiveObjects.c";
 //		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/PassingExcessiveObjects.java";
-		expectedSmells = new HashSet<>(Arrays.asList(new MLSCodeSmell("PassingExcessiveObjects", "user", "Java_codeSmellsJava_PassingExcessiveObjects_getNettoSalary", "", "", aPathC)));
+		expectedSmells = new HashSet<>(Arrays.asList(new MLSCodeSmell("PassingExcessiveObjects", "user",
+				"Java_codeSmellsJava_PassingExcessiveObjects_getNettoSalary", "", "", aPathC)));
 		detector = new PassingExcessiveObjectsDetection();
 	}
 

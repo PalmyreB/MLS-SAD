@@ -7,7 +7,6 @@ import java.util.Set;
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.codesmells.detection.repository.NotUsingRelativePathDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
-import mlssad.utils.CodeToXml;
 
 public class TestCaseNotUsingRelativePath extends AbstractCodeSmellTestCase {
 
@@ -27,7 +26,7 @@ public class TestCaseNotUsingRelativePath extends AbstractCodeSmellTestCase {
 				"\"JNILIB\"", "run", "NoCodeSmell", "noCodeSmell", aPathJava)));
 
 		ICodeSmellDetection detector = new NotUsingRelativePathDetection();
-		detector.detect(null, new CodeToXml().parse(PATH_JAVA_NO_CODE_SMELL));
+		detector.detect(ctx.parse(PATH_JAVA_NO_CODE_SMELL));
 
 		assertEquals(expectedSmells.size(), detector.getCodeSmells().size());
 		assertEquals(expectedSmells, detector.getCodeSmells());

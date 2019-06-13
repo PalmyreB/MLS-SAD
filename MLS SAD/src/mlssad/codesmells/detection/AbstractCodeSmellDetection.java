@@ -30,7 +30,7 @@ public abstract class AbstractCodeSmellDetection {
 	public AbstractCodeSmellDetection() {
 	}
 
-	public abstract void detect(final Document cXml, final Document javaXml);
+	public abstract void detect(final Document xml);
 
 //	protected BoxPlot getBoxPlot() {
 //		return this.boxPlot;

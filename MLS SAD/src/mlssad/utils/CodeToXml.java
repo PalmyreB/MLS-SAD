@@ -63,7 +63,8 @@ public class CodeToXml {
 	public Document parseArchive(String... fileNames) {
 		List<File> files = new ArrayList<>();
 		for (String fileName : fileNames)
-			files.add(new File(fileName));
+			if (fileName != null)
+				files.add(new File(fileName));
 
 		String archiveName = null;
 		try {

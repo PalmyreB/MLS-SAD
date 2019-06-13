@@ -10,6 +10,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
@@ -22,7 +23,7 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 		return "HardCodingLibraries";
 	}
 
-	public void detect(final Document cXml, final Document javaXml) {
+	public void detect(final Document xml) {
 		Set<MLSCodeSmell> hardCodedLibraries = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		// TODO System.load and System.loadLibrary: only way to load a library?
@@ -32,20 +33,28 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 		String hardCodedQuery = String.format("//try[catch%s]%s", loadQuery, loadQuery);
 
 		try {
+			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
 			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
 			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-			String javaFilePath = FILEPATH_EXP.evaluate(javaXml);
-			NodeList loadList = (NodeList) xPath.evaluate(hardCodedQuery, javaXml, XPathConstants.NODESET);
-			int loadLength = loadList.getLength();
-			for (int i = 0; i < loadLength; i++) {
-				String arg = loadList.item(i).getTextContent();
-				String thisMethod = FUNC_EXP.evaluate(loadList.item(i));
-				String thisClass = CLASS_EXP.evaluate(loadList.item(i));
-				String thisPackage = PACKAGE_EXP.evaluate(loadList.item(i));
-				hardCodedLibraries.add(new MLSCodeSmell(this.getCodeSmellName(), arg, thisMethod, thisClass,
-						thisPackage, javaFilePath));
+
+			NodeList cList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			final int cLength = cList.getLength();
+
+			for (int i = 0; i < cLength; i++) {
+				Node javaXml = cList.item(i);
+				String javaFilePath = FILEPATH_EXP.evaluate(javaXml);
+				NodeList loadList = (NodeList) xPath.evaluate(hardCodedQuery, javaXml, XPathConstants.NODESET);
+				int loadLength = loadList.getLength();
+				for (int j = 0; j < loadLength; j++) {
+					String arg = loadList.item(j).getTextContent();
+					String thisMethod = FUNC_EXP.evaluate(loadList.item(j));
+					String thisClass = CLASS_EXP.evaluate(loadList.item(j));
+					String thisPackage = PACKAGE_EXP.evaluate(loadList.item(j));
+					hardCodedLibraries.add(new MLSCodeSmell(this.getCodeSmellName(), arg, thisMethod, thisClass,
+							thisPackage, javaFilePath));
+				}
 			}
 			this.setSetOfSmells(hardCodedLibraries);
 		} catch (XPathExpressionException e) {
