@@ -42,19 +42,22 @@ public class DetectCodeSmellsAndAntiPatterns {
 		Document xml = ctx.parse(args);
 
 		try {
+			int id = 0;
 			PrintWriter outputWriter = new PrintWriter(
 					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)));
 			outputWriter.println("ID,Code smell name,Variable,Method,Class,Package,File");
 			for (ICodeSmellDetection detector : codeSmellDetectors) {
 				detector.detect(xml);
-				detector.output(outputWriter);
+				detector.output(outputWriter, id);
+				id += detector.getCodeSmells().size();
 			}
 
-//			outputWriter.println("ID,Anti-pattern name,Variable,Method,Class,Package,File");
-//			for (IAntiPatternDetection detector : antiPatternDetectors) {
-//				detector.detect(xml);
-//				detector.output(outputWriter);
-//			}
+			outputWriter.println("ID,Anti-pattern name,Variable,Method,Class,Package,File");
+			for (IAntiPatternDetection detector : antiPatternDetectors) {
+				detector.detect(xml);
+				detector.output(outputWriter, id);
+				id += detector.getAntiPatterns().size();
+			}
 
 			outputWriter.close();
 		} catch (IOException e) {

@@ -37,5 +37,7 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 
 	void output(final PrintWriter aWriter);
 
+	void output(final PrintWriter aWriter, int count);
+
 	void detect(final Document xml);
 }

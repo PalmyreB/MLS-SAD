@@ -54,8 +54,11 @@ public abstract class AbstractCodeSmellDetection {
 	 * Return a file that displays all the smells detected
 	 */
 	public void output(final PrintWriter aWriter) {
+		output(aWriter, 0);
+	}
+
+	public void output(final PrintWriter aWriter, int count) {
 		try {
-			int count = 0;
 			final Iterator<MLSCodeSmell> iter = this.getCodeSmells().iterator();
 			while (iter.hasNext()) {
 				final MLSCodeSmell codeSmell = iter.next();
