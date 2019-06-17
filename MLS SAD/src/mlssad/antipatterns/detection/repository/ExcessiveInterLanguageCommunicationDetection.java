@@ -52,6 +52,10 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
 
+			final XPathExpression nativeDeclExpr = xPath.compile("descendant::function_decl[specifier='native']/name");
+			final XPathExpression loopExpr = xPath.compile("ancestor::for | ancestor::while");
+			final XPathExpression argExpr = xPath.compile("argument_list/argument/expr/name");
+
 			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
 			final int javaLength = javaList.getLength();
 
@@ -61,8 +65,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 				String filePath = FILEPATH_EXP.evaluate(javaXml);
 
 				// Native method declaration
-				NodeList nativeDeclList = (NodeList) xPath.evaluate(
-						"descendant::function_decl[specifier='native']/name", javaXml, XPathConstants.NODESET);
+				NodeList nativeDeclList = (NodeList) nativeDeclExpr.evaluate(javaXml, XPathConstants.NODESET);
 
 				for (int j = 0; j < nativeDeclList.getLength(); j++) {
 					String thisNativeMethod = nativeDeclList.item(j).getTextContent();
@@ -86,8 +89,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 						}
 						// Check whether the method is called in a loop, in which case it is considered
 						// as called too much time in a first approximation
-						NodeList loops = (NodeList) xPath.evaluate("ancestor::for | ancestor::while", callList.item(k),
-								XPathConstants.NODESET);
+						NodeList loops = (NodeList) loopExpr.evaluate(callList.item(k), XPathConstants.NODESET);
 						if (loops.getLength() > 0) {
 							antiPatternSet.add(thisAntiPattern);
 						}
@@ -96,8 +98,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 						 * SECOND CASE Calls to different native methods with at least one variable in
 						 * common
 						 */
-						NodeList argList = (NodeList) xPath.evaluate("argument_list/argument/expr/name",
-								callList.item(k), XPathConstants.NODESET);
+						NodeList argList = (NodeList) argExpr.evaluate(callList.item(k), XPathConstants.NODESET);
 						for (int l = 0; l < argList.getLength(); l++) {
 							String var = argList.item(l).getTextContent();
 							MLSAntiPattern oldValue = variablesAsArguments.put(var, thisAntiPattern);

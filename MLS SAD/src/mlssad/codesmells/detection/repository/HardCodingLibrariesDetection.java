@@ -33,11 +33,9 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 		String hardCodedQuery = String.format("//try[catch%s]%s", loadQuery, loadQuery);
 
 		try {
-			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			
+
+			final XPathExpression hardCodedExpr = xPath.compile(hardCodedQuery);
 
 			NodeList cList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
@@ -45,7 +43,7 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 			for (int i = 0; i < cLength; i++) {
 				Node javaXml = cList.item(i);
 				String javaFilePath = FILEPATH_EXP.evaluate(javaXml);
-				NodeList loadList = (NodeList) xPath.evaluate(hardCodedQuery, javaXml, XPathConstants.NODESET);
+				NodeList loadList = (NodeList) hardCodedExpr.evaluate(javaXml, XPathConstants.NODESET);
 				int loadLength = loadList.getLength();
 				for (int j = 0; j < loadLength; j++) {
 					String arg = loadList.item(j).getTextContent();

@@ -31,14 +31,13 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 				"CharArrayElements", "ShortArrayElements", "IntArrayElements", "LongArrayElements",
 				"FloatArrayElements", "DoubleArrayElements", "PrimitiveArrayCritical", "StringCritical");
 
-		String funcQuery = "//function";
 		String genericCallQuery = "//call[name/name='%s']";
 		String secondArgQuery = "argument_list/argument[2]/expr/name";
 		String nodeWithGivenArg = "%s[argument_list/argument[2]/expr/name='%s']";
 
 		try {
-			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
+			final XPathExpression funcExpr = xPath.compile("//function");
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
@@ -47,14 +46,12 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 				Node cXml = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-				XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
-
-				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
+				NodeList funcList = (NodeList) funcExpr.evaluate(cXml, XPathConstants.NODESET);
 				int funcLength = funcList.getLength();
 				// Analysis for each function
 				for (int j = 0; j < funcLength; j++) {
 					Node thisFunction = funcList.item(j);
-					String funcName = xPath.evaluate("./name", thisFunction);
+					String funcName = NAME_EXP.evaluate(thisFunction);
 					// Analysis for each type
 					Iterator<String> it = types.iterator();
 					while (it.hasNext()) {

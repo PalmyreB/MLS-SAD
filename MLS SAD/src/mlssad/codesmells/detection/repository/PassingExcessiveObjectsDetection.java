@@ -43,8 +43,8 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 		String funcQuery = "//function";
 
 		try {
-			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression funcExpr = xPath.compile(funcQuery);
+			final XPathExpression paramExpr = xPath.compile(paramQuery);
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
@@ -53,14 +53,14 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 				Node cFile = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cFile);
 
-				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cFile, XPathConstants.NODESET);
+				NodeList funcList = (NodeList) funcExpr.evaluate(cFile, XPathConstants.NODESET);
 				final int funcLength = funcList.getLength();
 
 				// Analysis for each function
 				for (int j = 0; j < funcLength; j++) {
 					Node thisFunc = funcList.item(j);
-					String funcName = xPath.evaluate("./name", thisFunc);
-					NodeList paramList = (NodeList) xPath.evaluate(paramQuery, thisFunc, XPathConstants.NODESET);
+					String funcName = NAME_EXP.evaluate(thisFunc);
+					NodeList paramList = (NodeList) paramExpr.evaluate(thisFunc, XPathConstants.NODESET);
 					final int paramLength = paramList.getLength();
 
 					// Analysis for each parameter that is an object

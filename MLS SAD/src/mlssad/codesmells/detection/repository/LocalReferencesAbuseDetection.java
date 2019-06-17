@@ -55,9 +55,9 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 		String deleteQuery = ".//call[name/name='DeleteLocalRef' and argument_list/argument[2]/expr/name='%s']";
 
 		try {
-			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression declExpr = xPath.compile(declQuery);
+			final XPathExpression funcExpr = xPath.compile(funcQuery);
+			final XPathExpression loopExpr = xPath.compile("ancestor::for | ancestor::while");
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
@@ -66,27 +66,28 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 				Node cXml = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, cXml, XPathConstants.NODESET);
+				NodeList funcList = (NodeList) funcExpr.evaluate(cXml, XPathConstants.NODESET);
 				int funcLength = funcList.getLength();
 
 				// Analysis for each function
 				for (int j = 0; j < funcLength; j++) {
 					Node thisJNIFunction = funcList.item(j);
-					NodeList declList = (NodeList) xPath.evaluate(declQuery, thisJNIFunction, XPathConstants.NODESET);
+					NodeList declList = (NodeList) declExpr.evaluate(thisJNIFunction, XPathConstants.NODESET);
 					for (int k = 0; k < declList.getLength(); k++) {
-						String var = declList.item(k).getTextContent();
-						String thisFunction = FUNC_EXP.evaluate(declList.item(k));
+						Node thisDecl = declList.item(k);
+						String var = thisDecl.getTextContent();
+						String thisFunction = FUNC_EXP.evaluate(thisDecl);
 						MLSCodeSmell codeSmell = new MLSCodeSmell(this.getCodeSmellName(), var, thisFunction, "", "",
 								cFilePath);
 
 						// If the reference is in a loop, check whether it is deleted in the loop
 						// There can be several nested loops
 						// TODO Look only inside the innermost loop?
-						NodeList loops = (NodeList) xPath.evaluate("ancestor::for | ancestor::while", declList.item(k),
-								XPathConstants.NODESET);
+						XPathExpression deleteVarExpr = xPath.compile(String.format(deleteQuery, var));
+						NodeList loops = (NodeList) loopExpr.evaluate(thisDecl, XPathConstants.NODESET);
 						boolean refIsDeletedInsideLoop = false;
 						for (int l = 0; l < loops.getLength(); l++) {
-							if (!xPath.evaluate(String.format(deleteQuery, var), loops.item(l)).equals("")) {
+							if (!deleteVarExpr.evaluate(loops.item(l)).equals("")) {
 								refIsDeletedInsideLoop = true;
 								break;
 							}
@@ -96,7 +97,7 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 						if (!refIsDeletedInsideLoop) {
 							if (loops.getLength() > 0)
 								refsInLoopSet.add(codeSmell);
-							else if (xPath.evaluate(String.format(deleteQuery, var), thisJNIFunction).equals("")) {
+							else if (deleteVarExpr.evaluate(thisJNIFunction).equals("")) {
 								nbOfRefsOutsideLoops++;
 								refSet.add(codeSmell);
 							}

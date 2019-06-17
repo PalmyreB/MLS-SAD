@@ -24,18 +24,9 @@ public class UnusedDeclarationDetection extends AbstractCodeSmellDetection imple
 
 	public void detect(final Document xml) {
 
-		// Native method declaration
-		String declQuery = "//function_decl[specifier='native']/name";
-		// Non-existent implementation
-		String implQuery = "//function/name";
-
 		try {
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-
-			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
-			NodeList cList = (NodeList) xPath.evaluate(C_FILES_QUERY, xml, XPathConstants.NODESET);
+			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int javaLength = javaList.getLength();
 			final int cLength = cList.getLength();
 
@@ -44,7 +35,7 @@ public class UnusedDeclarationDetection extends AbstractCodeSmellDetection imple
 			for (int i = 0; i < javaLength; i++) {
 				Node javaFile = javaList.item(i);
 				String javaFilePath = FILEPATH_EXP.evaluate(javaFile);
-				NodeList declList = (NodeList) xPath.evaluate(declQuery, javaFile, XPathConstants.NODESET);
+				NodeList declList = (NodeList) NATIVE_DECL_EXP.evaluate(javaFile, XPathConstants.NODESET);
 				int declLength = declList.getLength();
 
 				for (int j = 0; j < declLength; j++) {
@@ -58,7 +49,7 @@ public class UnusedDeclarationDetection extends AbstractCodeSmellDetection imple
 			}
 
 			for (int i = 0; i < cLength; i++) {
-				NodeList implList = (NodeList) xPath.evaluate(implQuery, cList.item(i), XPathConstants.NODESET);
+				NodeList implList = (NodeList) IMPL_EXP.evaluate(cList.item(i), XPathConstants.NODESET);
 				int implLength = implList.getLength();
 
 				for (int j = 0; j < implLength; j++) {

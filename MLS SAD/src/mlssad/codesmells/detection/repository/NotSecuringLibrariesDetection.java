@@ -29,11 +29,8 @@ public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection im
 		String secureQuery = "//call[name = 'AccessController.doPrivileged']" + loadQuery;
 
 		try {
-			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression loadExpr = xPath.compile(loadQuery);
+			final XPathExpression secureExpr = xPath.compile(secureQuery);
 
 			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int javaLength = javaList.getLength();
@@ -42,8 +39,8 @@ public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection im
 				Node javaXml = javaList.item(i);
 				final String javaFilePath = FILEPATH_EXP.evaluate(javaXml);
 
-				NodeList loadList = (NodeList) xPath.evaluate(loadQuery, javaXml, XPathConstants.NODESET);
-				NodeList secureList = (NodeList) xPath.evaluate(secureQuery, javaXml, XPathConstants.NODESET);
+				NodeList loadList = (NodeList) loadExpr.evaluate(javaXml, XPathConstants.NODESET);
+				NodeList secureList = (NodeList) secureExpr.evaluate(javaXml, XPathConstants.NODESET);
 				final int loadLength = loadList.getLength();
 				final int secureLength = secureList.getLength();
 

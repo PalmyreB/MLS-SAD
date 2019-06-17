@@ -32,39 +32,41 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 
 		try {
-			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
+
+			List<String> selectorList = new LinkedList<>();
+			List<String> exceptSelectorList = new LinkedList<>();
+			for (String method : methods)
+				selectorList.add(String.format(".//call/name/name = '%s'", method));
+			for (String exception : exceptions)
+				exceptSelectorList.add(String.format(". = '%s'", exception));
+			String selector = String.join(" or ", selectorList);
+			String exceptSelector = String.join(" or ", exceptSelectorList);
+
+			String declQuery = String.format("//decl_stmt[%s]/decl | //expr_stmt[%s]/expr", selector, selector);
+			String argQuery = ".//call/argument_list/argument[%d]/expr/name | .//call/argument_list/argument[%d]/expr/literal";
+			String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
+
+			final XPathExpression declExpr = xPath.compile(declQuery);
+			final XPathExpression exceptExpr = xPath.compile(exceptQuery);
+			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2, 2));
+			final XPathExpression thirdArgExpr = xPath.compile(String.format(argQuery, 3, 3));
 
 			for (int i = 0; i < cLength; i++) {
 				Node cXml = cList.item(i);
 				final String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-				List<String> selectorList = new LinkedList<>();
-				List<String> exceptSelectorList = new LinkedList<>();
-				for (String method : methods)
-					selectorList.add(String.format(".//call/name/name = '%s'", method));
-				for (String exception : exceptions)
-					exceptSelectorList.add(String.format(". = '%s'", exception));
-				String selector = String.join(" or ", selectorList);
-				String exceptSelector = String.join(" or ", exceptSelectorList);
-
-				String declQuery = String.format("//decl_stmt[%s]/decl | //expr_stmt[%s]/expr", selector, selector);
-				String argQuery = ".//call/argument_list/argument[%d]/expr/name | .//call/argument_list/argument[%d]/expr/literal";
-				String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
-				NodeList declList = (NodeList) xPath.evaluate(declQuery, cXml, XPathConstants.NODESET);
-				NodeList exceptList = (NodeList) xPath.evaluate(exceptQuery, cXml, XPathConstants.NODESET);
+				NodeList declList = (NodeList) declExpr.evaluate(cXml, XPathConstants.NODESET);
+				NodeList exceptList = (NodeList) exceptExpr.evaluate(cXml, XPathConstants.NODESET);
 				final int declLength = declList.getLength();
 				final int exceptLength = exceptList.getLength();
 
 				for (int j = 0; j < declLength; j++) {
 					String funcName = FUNC_EXP.evaluate(declList.item(j));
-					String arg = xPath.evaluate(String.format(argQuery, 3, 3), declList.item(j));
+					String arg = thirdArgExpr.evaluate(declList.item(j));
 					if (arg.equals("")) // Case of FindClass, that has only two arguments
-						arg = xPath.evaluate(String.format(argQuery, 2, 2), declList.item(j));
+						arg = secondArgExpr.evaluate(declList.item(j));
 
 					boolean isNotChecked = true;
 

@@ -28,17 +28,13 @@ public class NotUsingRelativePathDetection extends AbstractCodeSmellDetection im
 		String loadQuery = "//call[name = 'System.loadLibrary' or name = 'System.load']//argument//literal";
 
 		try {
-			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression loadExpr = xPath.compile(loadQuery);
 
 			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int javaLength = javaList.getLength();
 
 			for (int i = 0; i < javaLength; i++) {
-				NodeList loadList = (NodeList) xPath.evaluate(loadQuery, javaList.item(i), XPathConstants.NODESET);
+				NodeList loadList = (NodeList) loadExpr.evaluate(javaList.item(i), XPathConstants.NODESET);
 				final int loadLength = loadList.getLength();
 				for (int j = 0; j < loadLength; j++) {
 					Node thisLoad = loadList.item(j);

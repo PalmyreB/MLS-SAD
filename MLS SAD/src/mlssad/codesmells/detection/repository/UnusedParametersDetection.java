@@ -33,12 +33,9 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 		String varQuery = "ancestor::function//expr/name";
 
 		try {
-			final XPathExpression LANGUAGE_EXP = xPath.compile(LANGUAGE_QUERY);
-			final XPathExpression FILE_EXP = xPath.compile(FILE_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression funcExpr = xPath.compile(funcQuery);
+			final XPathExpression typeExpr = xPath.compile("parent::*/type");
+			final XPathExpression indexExpr = xPath.compile("parent::*/name/index");
 
 			NodeList fileList = (NodeList) FILE_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int fileLength = fileList.getLength();
@@ -56,10 +53,11 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 				String filePath = FILEPATH_EXP.evaluate(thisFileNode);
 				// Query to select parameters that are not used as a variable
 				String interQuery = String.format("%s[not(. = %s)]", paramQuery, varQuery);
-				NodeList funcList = (NodeList) xPath.evaluate(funcQuery, thisFileNode, XPathConstants.NODESET);
+				XPathExpression interExpr = xPath.compile(interQuery);
+				NodeList funcList = (NodeList) funcExpr.evaluate(thisFileNode, XPathConstants.NODESET);
 				final int funcLength = funcList.getLength();
 				for (int j = 0; j < funcLength; j++) {
-					NodeList nodeList = (NodeList) xPath.evaluate(interQuery, funcList.item(j), XPathConstants.NODESET);
+					NodeList nodeList = (NodeList) interExpr.evaluate(funcList.item(j), XPathConstants.NODESET);
 					final int length = nodeList.getLength();
 
 					for (int k = 0; k < length; k++) {
@@ -71,9 +69,8 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 
 						// Check if the current method is not the main method,
 						// in which case it is frequent not to use the args[]
-						if (!(length == 1 && thisFunc.equals("main")
-								&& xPath.evaluate("parent::*/type", thisNode).equals("String")
-								&& xPath.evaluate("parent::*/name/index", thisNode).equals("[]"))) {
+						if (!(length == 1 && thisFunc.equals("main") && typeExpr.evaluate(thisNode).equals("String")
+								&& indexExpr.evaluate(thisNode).equals("[]"))) {
 							unusedParamsSet.add(new MLSCodeSmell(this.getCodeSmellName(), thisParam, thisFunc,
 									thisClass, thisPackage, filePath));
 						}

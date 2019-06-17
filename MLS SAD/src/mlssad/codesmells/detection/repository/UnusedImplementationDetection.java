@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -26,20 +25,9 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 	public void detect(final Document xml) {
 		Map<String, MLSCodeSmell> unusedImplMap = new HashMap<>();
 
-		// Native method declaration
-		String declQuery = "//function_decl[specifier='native']/name";
-		// Corresponding implementation
-		String implQuery = "//function/name";
-		// Never called from the host language
-		String callQuery = "//call//name[last()]";
-
 		try {
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
-			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-
-			NodeList cList = (NodeList) xPath.evaluate(C_FILES_QUERY, xml, XPathConstants.NODESET);
-			NodeList javaList = (NodeList) xPath.evaluate(JAVA_FILES_QUERY, xml, XPathConstants.NODESET);
+			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
 			final int javaLength = javaList.getLength();
 
@@ -51,8 +39,8 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 				Node javaFile = javaList.item(i);
 				String javaFilePath = FILEPATH_EXP.evaluate(javaFile);
 
-				NodeList declList = (NodeList) xPath.evaluate(declQuery, javaFile, XPathConstants.NODESET);
-				NodeList callList = (NodeList) xPath.evaluate(callQuery, javaFile, XPathConstants.NODESET);
+				NodeList declList = (NodeList) NATIVE_DECL_EXP.evaluate(javaFile, XPathConstants.NODESET);
+				NodeList callList = (NodeList) HOST_CALL_EXP.evaluate(javaFile, XPathConstants.NODESET);
 				final int declLength = declList.getLength();
 				final int callLength = callList.getLength();
 
@@ -71,7 +59,7 @@ public class UnusedImplementationDetection extends AbstractCodeSmellDetection im
 
 			// Check whether they are implemented
 			for (int i = 0; i < cLength; i++) {
-				NodeList implList = (NodeList) xPath.evaluate(implQuery, cList.item(i), XPathConstants.NODESET);
+				NodeList implList = (NodeList) IMPL_EXP.evaluate(cList.item(i), XPathConstants.NODESET);
 				final int implLength = implList.getLength();
 				for (int j = 0; j < implLength; j++) {
 					// WARNING: This only keeps the part of the function name after the last

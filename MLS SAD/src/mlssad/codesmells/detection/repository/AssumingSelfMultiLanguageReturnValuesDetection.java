@@ -39,9 +39,26 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 
 		try {
-			final XPathExpression C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			final XPathExpression FUNC_EXP = xPath.compile(FUNC_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			String argQuery = ".//call/argument_list/argument[%d]/expr/name | .//call/argument_list/argument[%d]/expr/literal";
+			final XPathExpression ifExpr = xPath.compile("//if/condition");
+			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2, 2));
+			final XPathExpression thirdArgExpr = xPath.compile(String.format(argQuery, 3, 3));
+
+			// Native functions that look up an ID
+			List<String> selectorList = new LinkedList<>();
+			List<String> exceptSelectorList = new LinkedList<>();
+			for (String method : methods)
+				selectorList.add(String.format(".//call/name/name = '%s'", method));
+			for (String exception : exceptions)
+				exceptSelectorList.add(String.format(". = '%s'", exception));
+			String selector = String.join(" or ", selectorList);
+			String exceptSelector = String.join(" or ", exceptSelectorList);
+
+			String declQuery = String.format("//decl_stmt[%s]/decl | //expr_stmt[%s]/expr", selector, selector);
+			String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
+
+			final XPathExpression declExpr = xPath.compile(declQuery);
+			final XPathExpression exceptExpr = xPath.compile(exceptQuery);
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
@@ -50,41 +67,26 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 				Node cXml = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
-				// Native functions that look up an ID
-				List<String> selectorList = new LinkedList<>();
-				List<String> exceptSelectorList = new LinkedList<>();
-				for (String method : methods)
-					selectorList.add(String.format(".//call/name/name = '%s'", method));
-				for (String exception : exceptions)
-					exceptSelectorList.add(String.format(". = '%s'", exception));
-				String selector = String.join(" or ", selectorList);
-				String exceptSelector = String.join(" or ", exceptSelectorList);
-
-				String declQuery = String.format("//decl_stmt[%s]/decl | //expr_stmt[%s]/expr", selector, selector);
-				String varQuery = "./name";
-				String argQuery = ".//call/argument_list/argument[%d]/expr/name | .//call/argument_list/argument[%d]/expr/literal";
-				String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
-				String ifQuery = "//if/condition";
-
-				NodeList declList = (NodeList) xPath.evaluate(declQuery, cXml, XPathConstants.NODESET);
-				NodeList exceptList = (NodeList) xPath.evaluate(exceptQuery, cXml, XPathConstants.NODESET);
-				NodeList ifList = (NodeList) xPath.evaluate(ifQuery, cXml, XPathConstants.NODESET);
+				NodeList declList = (NodeList) declExpr.evaluate(cXml, XPathConstants.NODESET);
+				NodeList exceptList = (NodeList) exceptExpr.evaluate(cXml, XPathConstants.NODESET);
+				NodeList ifList = (NodeList) ifExpr.evaluate(cXml, XPathConstants.NODESET);
 				int exceptLength = exceptList.getLength();
 				int ifLength = ifList.getLength();
 
 				for (int j = 0; j < declList.getLength(); j++) {
-					String var = xPath.evaluate(varQuery, declList.item(j));
-					String arg = xPath.evaluate(String.format(argQuery, 3, 3), declList.item(j));
+					Node thisDecl = declList.item(j);
+					String var = NAME_EXP.evaluate(thisDecl);
+					String arg = thirdArgExpr.evaluate(thisDecl);
 					if (arg.equals("")) // Case of FindClass, that has only two arguments
-						arg = xPath.evaluate(String.format(argQuery, 2, 2), declList.item(j));
+						arg = secondArgExpr.evaluate(thisDecl);
 
 					boolean isNotChecked = true;
 
 					// Check if there is a condition on the variable
+					XPathExpression usedVarExpr = xPath.compile(String.format("./expr/name[. = '%s']", var));
 					for (int k = 0; k < ifLength; k++) {
-						boolean isCorrectVar = xPath
-								.evaluate(String.format("./expr/name[. = '%s']", var), ifList.item(k)).equals(var);
-						boolean conditionIsAfterDeclaration = declList.item(j)
+						boolean isCorrectVar = usedVarExpr.evaluate(ifList.item(k)).equals(var);
+						boolean conditionIsAfterDeclaration = thisDecl
 								.compareDocumentPosition(ifList.item(k)) == Node.DOCUMENT_POSITION_FOLLOWING;
 						if (isCorrectVar && conditionIsAfterDeclaration) {
 							isNotChecked = false;
