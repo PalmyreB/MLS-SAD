@@ -6,6 +6,7 @@ import java.util.Set;
 
 import mlssad.codesmells.detection.repository.UnusedParametersDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
+import mlssad.utils.CodeToXml;
 
 public class TestCaseUnusedParameters extends AbstractCodeSmellTestCase {
 
@@ -24,7 +25,7 @@ public class TestCaseUnusedParameters extends AbstractCodeSmellTestCase {
 		final String aPathJava = "../MLS SAD/src/mlssad/codesmells/detection/repository/UnusedParametersDetection.java";
 		Set<MLSCodeSmell> expectedSmells = new HashSet<>();
 
-		detector.detect(ctx.parse(aPathJava));
+		detector.detect(CodeToXml.parse(aPathJava));
 
 		assertEquals(expectedSmells.size(), detector.getCodeSmells().size());
 		assertEquals(expectedSmells, detector.getCodeSmells());

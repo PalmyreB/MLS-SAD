@@ -39,8 +39,7 @@ public class DetectCodeSmellsAndAntiPatterns {
 		antiPatternDetectors.add(new TooMuchClusteringDetection());
 		antiPatternDetectors.add(new TooMuchScatteringDetection());
 
-		CodeToXml ctx = new CodeToXml();
-		Document xml = ctx.parse(args);
+		Document xml = CodeToXml.parse(args);
 
 		try {
 			int id = 0;

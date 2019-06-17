@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 
 import mlssad.antipatterns.detection.repository.ExcessiveInterLanguageCommunicationDetection;
 import mlssad.kernel.impl.MLSAntiPattern;
+import mlssad.utils.CodeToXml;
 
 public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPatternTestCase {
 	String expectedAntiPattern = "ExcessiveInterLanguageCommunication";
@@ -25,7 +26,7 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testSameMethod() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication2.java";
-		Document javaXml = ctx.parse(aPathJava);
+		Document javaXml = CodeToXml.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		expectedSmells.add(
 				new MLSAntiPattern(expectedAntiPattern, "", "square", expectedClass + 2, expectedPackage, aPathJava));
@@ -38,7 +39,7 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testSameVariable() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication3.java";
-		Document javaXml = ctx.parse(aPathJava);
+		Document javaXml = CodeToXml.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		expectedSmells.add(
 				new MLSAntiPattern(expectedAntiPattern, "", "square", expectedClass + 3, expectedPackage, aPathJava));
@@ -53,7 +54,7 @@ public class TestCaseExcessiveInterLanguageCommunication extends AbstractAntiPat
 
 	public void testTooManyNativeCalls() {
 		String aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication4.java";
-		Document javaXml = ctx.parse(aPathJava);
+		Document javaXml = CodeToXml.parse(aPathJava);
 		Set<MLSAntiPattern> expectedSmells = new HashSet<>();
 		for (char letter = 'a'; letter <= 'z'; letter++)
 			expectedSmells.add(new MLSAntiPattern(expectedAntiPattern, "", String.valueOf(letter), expectedClass + 4,

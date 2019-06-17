@@ -19,18 +19,18 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class CodeToXml {
+public final class CodeToXml {
 
-	String srcmlPath = "../MLS SAD/rsc/srcML 0.9.5/bin/srcml";
+	static final String srcmlPath = "../MLS SAD/rsc/srcML 0.9.5/bin/srcml";
 
-	public Document parse(String... fileNames) {
+	static public Document parse(String... fileNames) {
 		if (fileNames.length == 1)
-			return this.parseSingleDocument(fileNames[0]);
+			return parseSingleDocument(fileNames[0]);
 		else
-			return this.parseArchive(fileNames);
+			return parseArchive(fileNames);
 	};
 
-	public Document parseSingleDocument(String fileName) {
+	public static Document parseSingleDocument(String fileName) {
 		List<String> params = new ArrayList<String>();
 		params.add(srcmlPath);
 		params.add(fileName);
@@ -60,7 +60,7 @@ public class CodeToXml {
 		return xmlDocument;
 	}
 
-	public Document parseArchive(String... fileNames) {
+	public static Document parseArchive(String... fileNames) {
 		List<File> files = new ArrayList<>();
 		for (String fileName : fileNames)
 			if (fileName != null)
