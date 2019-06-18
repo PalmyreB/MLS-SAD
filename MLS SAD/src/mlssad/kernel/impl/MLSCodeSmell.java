@@ -111,17 +111,29 @@ public class MLSCodeSmell {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ Code Smell \"" + codeSmellName + "\"");
-		if (!variableName.isEmpty())
-			sb.append("\n\tVariable: " + variableName);
-		if (!methodName.isEmpty())
-			sb.append("\n\tMethod: " + methodName);
-		if (!className.isEmpty())
-			sb.append("\n\tClass: " + className);
-		if (!packageName.isEmpty())
-			sb.append("\n\tPackage: " + packageName);
-		if (!filePath.isEmpty())
-			sb.append("\n\tFile path: " + filePath);
+		sb.append("{ Code Smell \"");
+		sb.append(codeSmellName);
+		sb.append("\"");
+		if (!variableName.isEmpty()) {
+			sb.append("\n\tVariable: ");
+			sb.append(variableName);
+		}
+		if (!methodName.isEmpty()) {
+			sb.append("\n\tMethod: ");
+			sb.append(methodName);
+		}
+		if (!className.isEmpty()) {
+			sb.append("\n\tClass: ");
+			sb.append(className);
+		}
+		if (!packageName.isEmpty()) {
+			sb.append("\n\tPackage: ");
+			sb.append(packageName);
+		}
+		if (!filePath.isEmpty()) {
+			sb.append("\n\tFile path: ");
+			sb.append(filePath);
+		}
 		sb.append("\n}");
 		return sb.toString();
 	}

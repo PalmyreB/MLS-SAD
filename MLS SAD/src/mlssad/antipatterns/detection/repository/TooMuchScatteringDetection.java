@@ -29,8 +29,8 @@ public class TooMuchScatteringDetection extends AbstractAntiPatternDetection imp
 
 	@Override
 	public void detect(Document xml) {
-		int minNbOfClasses = PropertyGetter.getIntProp("TooMuchScattering.MinNbOfClasses", 2);
-		int maxNbOfMethods = PropertyGetter.getIntProp("TooMuchScattering.MaxNbOfMethods", 5);
+		final int minNbOfClasses = PropertyGetter.getIntProp("TooMuchScattering.MinNbOfClasses", 2);
+		final int maxNbOfMethods = PropertyGetter.getIntProp("TooMuchScattering.MaxNbOfMethods", 5);
 
 		Set<MLSAntiPattern> shortClassesSet = new HashSet<>();
 
@@ -38,11 +38,11 @@ public class TooMuchScatteringDetection extends AbstractAntiPatternDetection imp
 			final XPathExpression PACKAGE_EXP = xPath.compile("ancestor::unit/" + PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile("ancestor::unit/" + FILEPATH_QUERY);
 			final XPathExpression NATIVE_EXP = xPath.compile(NATIVE_QUERY);
-			final XPathExpression NAME_EXP = xPath.compile("./name");
+			final XPathExpression NAME_EXP = xPath.compile("name");
 
 			// Java classes
 			// The non-empty-name condition is necessary not to count anonymous classes
-			NodeList classList = (NodeList) xPath.evaluate("//class[name != '']", xml, XPathConstants.NODESET);
+			NodeList classList = (NodeList) xPath.evaluate("descendant::class[name != '']", xml, XPathConstants.NODESET);
 			final int nbOfClasses = classList.getLength();
 			if (nbOfClasses >= minNbOfClasses) {
 				for (int i = 0; i < nbOfClasses; i++) {

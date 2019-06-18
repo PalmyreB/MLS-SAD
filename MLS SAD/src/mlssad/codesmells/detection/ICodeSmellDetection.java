@@ -34,6 +34,10 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 	final String CLASS_QUERY = "ancestor::class/name";
 	final String PACKAGE_QUERY = "ancestor::unit//package/name";
 	final String FILEPATH_QUERY = "@filename"; // Call on unit
+	final String NAME_QUERY = "name";
+	final String NATIVE_DECL_QUERY = "descendant::function_decl[specifier='native']/name";
+	final String IMPL_QUERY = "descendant::function/name";
+	final String HOST_CALL_QUERY = "descendant::call//name[last()]";
 
 	void output(final PrintWriter aWriter);
 

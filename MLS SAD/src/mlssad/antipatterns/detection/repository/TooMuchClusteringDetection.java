@@ -29,7 +29,7 @@ public class TooMuchClusteringDetection extends AbstractAntiPatternDetection imp
 
 	@Override
 	public void detect(Document xml) {
-		int minNbOfMethodsPerClass = PropertyGetter.getIntProp("TooMuchClustering.MinNbOfMethodsPerClass", 6);
+		final int minNbOfMethodsPerClass = PropertyGetter.getIntProp("TooMuchClustering.MinNbOfMethodsPerClass", 6);
 
 		Set<MLSAntiPattern> antiPatternSet = new HashSet<>();
 
@@ -37,10 +37,10 @@ public class TooMuchClusteringDetection extends AbstractAntiPatternDetection imp
 			final XPathExpression PACKAGE_EXP = xPath.compile("ancestor::unit/" + PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile("ancestor::unit/" + FILEPATH_QUERY);
 			final XPathExpression NATIVE_EXP = xPath.compile(NATIVE_QUERY);
-			final XPathExpression NAME_EXP = xPath.compile("./name");
+			final XPathExpression NAME_EXP = xPath.compile("name");
 
 			// Java classes
-			NodeList classList = (NodeList) xPath.evaluate("//class", xml, XPathConstants.NODESET);
+			NodeList classList = (NodeList) xPath.evaluate("descendant::class", xml, XPathConstants.NODESET);
 			final int nbClasses = classList.getLength();
 
 			for (int j = 0; j < nbClasses; j++) {

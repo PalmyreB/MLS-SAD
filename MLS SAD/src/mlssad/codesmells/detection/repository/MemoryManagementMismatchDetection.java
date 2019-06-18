@@ -31,13 +31,13 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 				"CharArrayElements", "ShortArrayElements", "IntArrayElements", "LongArrayElements",
 				"FloatArrayElements", "DoubleArrayElements", "PrimitiveArrayCritical", "StringCritical");
 
-		String genericCallQuery = "//call[name/name='%s']";
+		String genericCallQuery = "descendant::call[name/name='%s']";
 		String secondArgQuery = "argument_list/argument[2]/expr/name";
 		String nodeWithGivenArg = "%s[argument_list/argument[2]/expr/name='%s']";
 
 		try {
 			final XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
-			final XPathExpression funcExpr = xPath.compile("//function");
+			final XPathExpression funcExpr = xPath.compile("descendant::function");
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();

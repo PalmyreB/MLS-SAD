@@ -30,7 +30,7 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 		// TODO Considered hard-coded when trying to load a library in a try statement
 		// and in a following catch statement: correct assumption?
 		String loadQuery = "//call[name = 'System.loadLibrary' or name = 'System.load']//argument";
-		String hardCodedQuery = String.format("//try[catch%s]%s", loadQuery, loadQuery);
+		String hardCodedQuery = String.format("descendant::try[catch%s]%s", loadQuery, loadQuery);
 
 		try {
 			

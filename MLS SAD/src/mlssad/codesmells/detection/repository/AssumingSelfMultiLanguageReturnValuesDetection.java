@@ -39,8 +39,8 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 
 		try {
-			String argQuery = ".//call/argument_list/argument[%d]/expr/name | .//call/argument_list/argument[%d]/expr/literal";
-			final XPathExpression ifExpr = xPath.compile("//if/condition");
+			String argQuery = "descendant::call/argument_list/argument[%d]/expr/name | descendant::call/argument_list/argument[%d]/expr/literal";
+			final XPathExpression ifExpr = xPath.compile("descendant::if/condition");
 			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2, 2));
 			final XPathExpression thirdArgExpr = xPath.compile(String.format(argQuery, 3, 3));
 
@@ -48,14 +48,15 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 			List<String> selectorList = new LinkedList<>();
 			List<String> exceptSelectorList = new LinkedList<>();
 			for (String method : methods)
-				selectorList.add(String.format(".//call/name/name = '%s'", method));
+				selectorList.add(String.format("descendant::call/name/name = '%s'", method));
 			for (String exception : exceptions)
 				exceptSelectorList.add(String.format(". = '%s'", exception));
 			String selector = String.join(" or ", selectorList);
 			String exceptSelector = String.join(" or ", exceptSelectorList);
 
-			String declQuery = String.format("//decl_stmt[%s]/decl | //expr_stmt[%s]/expr", selector, selector);
-			String exceptQuery = String.format("//if/condition/expr/call/name/name[%s]", exceptSelector);
+			String declQuery = String.format("descendant::decl_stmt[%s]/decl | descendant::expr_stmt[%s]/expr", selector,
+					selector);
+			String exceptQuery = String.format("descendant::if/condition/expr/call/name/name[%s]", exceptSelector);
 
 			final XPathExpression declExpr = xPath.compile(declQuery);
 			final XPathExpression exceptExpr = xPath.compile(exceptQuery);
@@ -83,7 +84,7 @@ public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCode
 					boolean isNotChecked = true;
 
 					// Check if there is a condition on the variable
-					XPathExpression usedVarExpr = xPath.compile(String.format("./expr/name[. = '%s']", var));
+					XPathExpression usedVarExpr = xPath.compile(String.format("expr/name[. = '%s']", var));
 					for (int k = 0; k < ifLength; k++) {
 						boolean isCorrectVar = usedVarExpr.evaluate(ifList.item(k)).equals(var);
 						boolean conditionIsAfterDeclaration = thisDecl

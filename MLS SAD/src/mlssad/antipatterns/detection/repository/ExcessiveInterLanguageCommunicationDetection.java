@@ -36,9 +36,9 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 		 * UNTREATED CASE Calls in both ways: Java to C and C to Java
 		 */
 
-		int minNbOfCallsToSameMethod = PropertyGetter
+		final int minNbOfCallsToSameMethod = PropertyGetter
 				.getIntProp("ExcessiveInterLanguageCommunication.MinNbOfCallsToSameMethod", 5);
-		int minNbOfCallsToNativeMethods = PropertyGetter
+		final int minNbOfCallsToNativeMethods = PropertyGetter
 				.getIntProp("ExcessiveInterLanguageCommunication.MinNbOfCallsToNativeMethods", 20);
 
 		Set<MLSAntiPattern> antiPatternSet = new HashSet<>();

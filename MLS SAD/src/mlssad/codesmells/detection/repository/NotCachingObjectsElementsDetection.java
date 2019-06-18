@@ -70,19 +70,19 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			List<String> nativeSelectorList = new LinkedList<>();
 			List<String> IDSelectorList = new LinkedList<>();
 			for (String method : methods) {
-				nativeSelectorList.add(String.format(".//call/name/name = '%s'", method));
+				nativeSelectorList.add(String.format("descendant::call/name/name = '%s'", method));
 				IDSelectorList.add(String.format("name/name = '%s'", method));
 			}
 			String nativeSelector = String.join(" or ", nativeSelectorList);
 			String IDSelector = String.join(" or ", IDSelectorList);
-			String nativeQuery = String.format("//function[(%s) and name != 'JNI_OnLoad']", nativeSelector);
-			String IDQuery = String.format(".//call[%s]//argument_list/argument[position() = 3]", IDSelector);
+			String nativeQuery = String.format("descendant::function[(%s) and name != 'JNI_OnLoad']", nativeSelector);
+			String IDQuery = String.format("descendant::call[%s]//argument_list/argument[position() = 3]", IDSelector);
 
 			// Queries used for second case detection
-			String funcQuery = "//function[name != 'JNI_OnLoad']";
-			String callTemplate = ".//call[name/name = '%s']";
-			String argsQuery = ".//argument_list";
-			String argNameQuery = ".//argument_list/argument[position() = 3]";
+			String funcQuery = "descendant::function[name != 'JNI_OnLoad']";
+			String callTemplate = "descendant::call[name/name = '%s']";
+			String argsQuery = "descendant::argument_list";
+			String argNameQuery = "descendant::argument_list/argument[position() = 3]";
 
 			final XPathExpression nativeExpr = xPath.compile(nativeQuery);
 			final XPathExpression IDExpr = xPath.compile(IDQuery);

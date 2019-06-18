@@ -61,7 +61,7 @@ public class DetectCodeSmellsAndAntiPatterns {
 			}
 			outputWriter.flush();
 			outputWriter.close();
-			System.out.println(System.currentTimeMillis() - start);
+			System.out.println("The detection took " + (System.currentTimeMillis() - start) + " ms.");
 		} catch (IOException e) {
 			System.out.println("Cannot create output file");
 			e.printStackTrace();

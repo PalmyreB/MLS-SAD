@@ -28,7 +28,7 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 		// TODO If object used for something else than get, it is not a code smell to
 		// pass it as a parameter
 
-		int maxNbOfFields = PropertyGetter.getIntProp("PassingExcessiveObjects.MaxNbOfFields", 5);
+		final int maxNbOfFields = PropertyGetter.getIntProp("PassingExcessiveObjects.MaxNbOfFields", 5);
 
 		Set<String> types = new HashSet<>(Arrays.asList("ObjectField", "BooleanField", "ByteField", "CharField",
 				"ShortField", "IntField", "LongField", "FloatField", "DoubleField"));
@@ -38,9 +38,9 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 		String setTemplate = "Set%s";
 
 		Set<MLSCodeSmell> excessiveObjectsSet = new HashSet<>();
-		String callTemplate = "//call/name/name[. = '%s']";
+		String callTemplate = "descendant::call/name/name[. = '%s']";
 		String paramQuery = "parameter_list/parameter[position()>2]/decl[type/name = 'jobject']/name";
-		String funcQuery = "//function";
+		String funcQuery = "descendant::function";
 
 		try {
 			final XPathExpression funcExpr = xPath.compile(funcQuery);

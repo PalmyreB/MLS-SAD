@@ -37,7 +37,7 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 		 * ToReflectedMethod ToReflectedField
 		 */
 
-		int minNbOfRefs = PropertyGetter.getIntProp("LocalReferencesAbuse.MinNbOfRefs", 20);
+		final int minNbOfRefs = PropertyGetter.getIntProp("LocalReferencesAbuse.MinNbOfRefs", 20);
 		int nbOfRefsOutsideLoops = 0;
 		Set<MLSCodeSmell> refSet = new HashSet<>();
 		Set<MLSCodeSmell> refsInLoopSet = new HashSet<>();
@@ -46,13 +46,14 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 				"NewObjectA", "NewObjectV", "NewDirectByteBuffer", "ToReflectedMethod", "ToReflectedField");
 		List<String> selectorList = new LinkedList<>();
 		for (String jniFunction : jniFunctions)
-			selectorList.add(String.format(".//call/name/name = '%s'", jniFunction));
+			selectorList.add(String.format("descendant::call/name/name = '%s'", jniFunction));
 		String selector = String.join(" or ", selectorList);
 		// TODO What if a function is called as the argument of another function
 		// e.g.: GetObjectRefType(env, GetObjectArrayElement(...));
-		String declQuery = String.format(".//decl_stmt[%s]/decl/name | .//expr_stmt[%s]/expr/name", selector, selector);
-		String funcQuery = "//function";
-		String deleteQuery = ".//call[name/name='DeleteLocalRef' and argument_list/argument[2]/expr/name='%s']";
+		String declQuery = String.format("descendant::decl_stmt[%s]/decl/name | descendant::expr_stmt[%s]/expr/name", selector,
+				selector);
+		String funcQuery = "descendant::function";
+		String deleteQuery = "descendant::call[name/name='DeleteLocalRef' and argument_list/argument[2]/expr/name='%s']";
 
 		try {
 			final XPathExpression declExpr = xPath.compile(declQuery);

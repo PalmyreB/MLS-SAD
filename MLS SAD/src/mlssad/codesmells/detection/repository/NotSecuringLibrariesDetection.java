@@ -26,7 +26,7 @@ public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection im
 
 		// TODO System.load and System.loadLibrary: only way to load a library?
 		String loadQuery = "//call[name = 'System.loadLibrary' or name = 'System.load']//argument";
-		String secureQuery = "//call[name = 'AccessController.doPrivileged']" + loadQuery;
+		String secureQuery = "descendant::call[name = 'AccessController.doPrivileged']" + loadQuery;
 
 		try {
 			final XPathExpression loadExpr = xPath.compile(loadQuery);

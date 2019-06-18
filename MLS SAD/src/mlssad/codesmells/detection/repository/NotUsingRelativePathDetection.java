@@ -25,7 +25,7 @@ public class NotUsingRelativePathDetection extends AbstractCodeSmellDetection im
 		Set<MLSCodeSmell> notRelativePathsSet = new HashSet<>();
 
 		// TODO System.load and System.loadLibrary: only way to load a library?
-		String loadQuery = "//call[name = 'System.loadLibrary' or name = 'System.load']//argument//literal";
+		String loadQuery = "descendant::call[name = 'System.loadLibrary' or name = 'System.load']//argument//literal";
 
 		try {
 			final XPathExpression loadExpr = xPath.compile(loadQuery);

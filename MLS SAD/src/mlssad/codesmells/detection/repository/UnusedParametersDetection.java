@@ -45,9 +45,9 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 				if (language.equals("C") || language.equals("C++"))
 					// Skip first two parameters, which are the JNI environment and the class for a
 					// static method or the object for a non-static method
-					paramQuery = "./parameter_list/parameter[position()>2]/decl/name";
+					paramQuery = "parameter_list/parameter[position()>2]/decl/name";
 				else if (language.equals("Java"))
-					paramQuery = "./parameter_list/parameter/decl/name";
+					paramQuery = "parameter_list/parameter/decl/name";
 				else
 					continue;
 				String filePath = FILEPATH_EXP.evaluate(thisFileNode);
