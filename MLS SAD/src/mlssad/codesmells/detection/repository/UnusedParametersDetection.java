@@ -69,8 +69,10 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 
 						// Check if the current method is not the main method,
 						// in which case it is frequent not to use the args[]
-						if (!(length == 1 && thisFunc.equals("main") && typeExpr.evaluate(thisNode).equals("String")
-								&& indexExpr.evaluate(thisNode).equals("[]"))) {
+						boolean isStringArray = (typeExpr.evaluate(thisNode).equals("String")
+								&& indexExpr.evaluate(thisNode).equals("[]"))
+								|| typeExpr.evaluate(thisNode).equals("String[]");
+						if (!(length == 1 && thisFunc.equals("main") && isStringArray)) {
 							unusedParamsSet.add(new MLSCodeSmell(this.getCodeSmellName(), thisParam, thisFunc,
 									thisClass, thisPackage, filePath));
 						}
