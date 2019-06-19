@@ -36,11 +36,16 @@ public abstract class AbstractAntiPatternDetection {
 		return "";
 	}
 
-	public abstract String getName();
+	public abstract String getAntiPatternName();
+
+	public String getName() {
+		return this.getAntiPatternName() + "Detection";
+	}
 
 	public void output(final PrintWriter aWriter) {
 		output(aWriter, 0);
 	}
+
 	public void output(final PrintWriter aWriter, int count) {
 		try {
 			final Iterator<MLSAntiPattern> iter = this.getAntiPatterns().iterator();

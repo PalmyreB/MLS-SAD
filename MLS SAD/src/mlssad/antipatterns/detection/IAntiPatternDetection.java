@@ -9,6 +9,8 @@ import mlssad.kernel.impl.MLSAntiPattern;
 
 public interface IAntiPatternDetection {
 
+	String getAntiPatternName();
+
 	String getName();
 
 //		String getRuleCardFile();
@@ -18,12 +20,10 @@ public interface IAntiPatternDetection {
 	// with design patterns...
 	Set<MLSAntiPattern> getAntiPatterns();
 
-	final String FILE_QUERY = "//unit";
+//	final String FILE_QUERY = "//unit";
 	final String C_FILES_QUERY = "//unit[@language='C++' or @language='C']";
 	final String JAVA_FILES_QUERY = "//unit[@language='Java']";
-	final String LANGUAGE_QUERY = "@language"; // Call on unit
-	final String FUNC_QUERY = "ancestor::function/name";
-	final String CLASS_QUERY = "ancestor::class/name";
+	final String CLASS_QUERY = "class/name";
 	final String PACKAGE_QUERY = "package/name"; // Call on unit
 	final String FILEPATH_QUERY = "@filename"; // Call on unit
 	final String NATIVE_QUERY = "descendant::function_decl[specifier='native']/name";

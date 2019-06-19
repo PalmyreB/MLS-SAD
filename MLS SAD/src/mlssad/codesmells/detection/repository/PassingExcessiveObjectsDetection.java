@@ -27,6 +27,8 @@ public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection
 	public void detect(final Document xml) {
 		// TODO If object used for something else than get, it is not a code smell to
 		// pass it as a parameter
+		// TODO Not a code smell if assignment of the object (or pointer) in the native
+		// code
 
 		final int maxNbOfFields = PropertyGetter.getIntProp("PassingExcessiveObjects.MaxNbOfFields", 5);
 

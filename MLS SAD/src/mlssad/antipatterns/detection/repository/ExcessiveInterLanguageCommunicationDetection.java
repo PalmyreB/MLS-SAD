@@ -21,13 +21,9 @@ import mlssad.utils.PropertyGetter;
 public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPatternDetection
 		implements IAntiPatternDetection {
 
+	@Override
 	public String getAntiPatternName() {
 		return "ExcessiveInterLanguageCommunication";
-	}
-
-	@Override
-	public String getName() {
-		return "ExcessiveInterLanguageCommunicationDetection";
 	}
 
 	@Override
@@ -48,11 +44,11 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 		int nbOfNativeCalls = 0;
 
 		try {
-			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
+			final XPathExpression CLASS_EXP = xPath.compile("ancestor::" + CLASS_QUERY);
 			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
 			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
+			final XPathExpression NATIVE_EXP = xPath.compile(NATIVE_QUERY);
 
-			final XPathExpression nativeDeclExpr = xPath.compile("descendant::function_decl[specifier='native']/name");
 			final XPathExpression loopExpr = xPath.compile("ancestor::for | ancestor::while");
 			final XPathExpression argExpr = xPath.compile("argument_list/argument/expr/name");
 
@@ -65,7 +61,7 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 				String filePath = FILEPATH_EXP.evaluate(javaXml);
 
 				// Native method declaration
-				NodeList nativeDeclList = (NodeList) nativeDeclExpr.evaluate(javaXml, XPathConstants.NODESET);
+				NodeList nativeDeclList = (NodeList) NATIVE_EXP.evaluate(javaXml, XPathConstants.NODESET);
 
 				for (int j = 0; j < nativeDeclList.getLength(); j++) {
 					String thisNativeMethod = nativeDeclList.item(j).getTextContent();

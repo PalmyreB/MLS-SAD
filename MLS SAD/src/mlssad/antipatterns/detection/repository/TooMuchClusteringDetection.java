@@ -18,13 +18,9 @@ import mlssad.utils.PropertyGetter;
 
 public class TooMuchClusteringDetection extends AbstractAntiPatternDetection implements IAntiPatternDetection {
 
+	@Override
 	public String getAntiPatternName() {
 		return "TooMuchClustering";
-	}
-
-	@Override
-	public String getName() {
-		return "TooMuchClusteringDetection";
 	}
 
 	@Override
