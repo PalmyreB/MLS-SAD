@@ -1,6 +1,10 @@
 package mlssad.antipatterns.detection.repository;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.xpath.XPathConstants;
@@ -18,13 +22,9 @@ import mlssad.utils.PropertyGetter;
 
 public class TooMuchScatteringDetection extends AbstractAntiPatternDetection implements IAntiPatternDetection {
 
+	@Override
 	public String getAntiPatternName() {
 		return "TooMuchScattering";
-	}
-
-	@Override
-	public String getName() {
-		return "TooMuchScatteringDetection";
 	}
 
 	@Override
@@ -35,34 +35,39 @@ public class TooMuchScatteringDetection extends AbstractAntiPatternDetection imp
 		Set<MLSAntiPattern> shortClassesSet = new HashSet<>();
 
 		try {
-			final XPathExpression PACKAGE_EXP = xPath.compile("ancestor::unit/" + PACKAGE_QUERY);
-			final XPathExpression FILEPATH_EXP = xPath.compile("ancestor::unit/" + FILEPATH_QUERY);
+			final XPathExpression JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY + "[package/name != '']");
+			final XPathExpression PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
+			final XPathExpression CLASS_EXP = xPath.compile(CLASS_QUERY);
+			final XPathExpression FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
 			final XPathExpression NATIVE_EXP = xPath.compile(NATIVE_QUERY);
-			final XPathExpression NAME_EXP = xPath.compile("name");
 
-			// Java classes
-			// The non-empty-name condition is necessary not to count anonymous classes
-			NodeList classList = (NodeList) xPath.evaluate("descendant::class[name != '']", xml, XPathConstants.NODESET);
-			final int nbOfClasses = classList.getLength();
-			if (nbOfClasses >= minNbOfClasses) {
-				for (int i = 0; i < nbOfClasses; i++) {
-					Node thisClassNode = classList.item(i);
-					// Native method declaration
-					NodeList nativeDeclList = (NodeList) NATIVE_EXP.evaluate(thisClassNode, XPathConstants.NODESET);
-					final int nativeDeclLength = nativeDeclList.getLength();
-					if (nativeDeclLength <= maxNbOfMethods) {
-						String thisClass = NAME_EXP.evaluate(thisClassNode);
-						String thisPackage = PACKAGE_EXP.evaluate(thisClassNode);
-						String thisFilePath = FILEPATH_EXP.evaluate(thisClassNode);
-						shortClassesSet.add(new MLSAntiPattern(this.getAntiPatternName(), "", "", thisClass,
-								thisPackage, thisFilePath));
-					}
+			Map<String, List<MLSAntiPattern>> classesInPackage = new HashMap<>();
+
+			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			final int javaLength = javaList.getLength();
+			for (int i = 0; i < javaLength; i++) {
+				Node javaXml = javaList.item(i);
+				// Native method declaration
+				NodeList nativeDeclList = (NodeList) NATIVE_EXP.evaluate(javaXml, XPathConstants.NODESET);
+				final int nativeDeclLength = nativeDeclList.getLength();
+				if (nativeDeclLength <= maxNbOfMethods) {
+					String thisClass = CLASS_EXP.evaluate(javaXml);
+					String thisPackage = PACKAGE_EXP.evaluate(javaXml);
+					String thisFilePath = FILEPATH_EXP.evaluate(javaXml);
+					MLSAntiPattern ap = new MLSAntiPattern(this.getAntiPatternName(), "", "", thisClass, thisPackage,
+							thisFilePath);
+					if (!classesInPackage.containsKey(thisPackage))
+						classesInPackage.put(thisPackage, new LinkedList<>());
+					classesInPackage.get(thisPackage).add(ap);
 				}
 			}
-			if (shortClassesSet.size() >= minNbOfClasses)
-				this.setSetOfAntiPatterns(shortClassesSet);
-			else
-				this.setSetOfAntiPatterns(new HashSet<>());
+
+			for (Map.Entry<String, List<MLSAntiPattern>> entry : classesInPackage.entrySet()) {
+				if (entry.getValue().size() >= minNbOfClasses)
+					entry.getValue().forEach(shortClassesSet::add);
+			}
+			this.setSetOfAntiPatterns(shortClassesSet);
+
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
