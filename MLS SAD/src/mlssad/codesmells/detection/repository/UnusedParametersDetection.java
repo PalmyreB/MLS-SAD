@@ -30,7 +30,7 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 		String paramQuery;
 		String funcQuery = "descendant::function";
 		// Query to select variables used in a function
-		String varQuery = "ancestor::function//expr/name";
+		String varQuery = "ancestor::function//expr//name";
 
 		try {
 			final XPathExpression funcExpr = xPath.compile(funcQuery);
