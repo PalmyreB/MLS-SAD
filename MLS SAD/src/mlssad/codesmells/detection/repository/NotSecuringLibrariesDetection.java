@@ -25,11 +25,11 @@ public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection im
 		Set<MLSCodeSmell> notSecureLibraries = new HashSet<>();
 
 		// TODO System.load and System.loadLibrary: only way to load a library?
-		String loadQuery = "//call[name = 'System.loadLibrary' or name = 'System.load']//argument";
-		String secureQuery = "descendant::call[name = 'AccessController.doPrivileged']" + loadQuery;
+		String loadQuery = "call[name = 'System.loadLibrary' or name = 'System.load']//argument";
+		String secureQuery = "descendant::call[name = 'AccessController.doPrivileged']//" + loadQuery;
 
 		try {
-			final XPathExpression loadExpr = xPath.compile(loadQuery);
+			final XPathExpression loadExpr = xPath.compile("descendant::" + loadQuery);
 			final XPathExpression secureExpr = xPath.compile(secureQuery);
 
 			NodeList javaList = (NodeList) JAVA_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
@@ -56,7 +56,7 @@ public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection im
 				}
 				for (int j = 0; j < secureLength; j++) {
 					Node thisNode = secureList.item(j);
-					final String thisLibrary = secureList.item(j).getTextContent();
+					final String thisLibrary = thisNode.getTextContent();
 					final String thisMethod = FUNC_EXP.evaluate(thisNode);
 					final String thisClass = CLASS_EXP.evaluate(thisNode);
 					final String thisPackage = PACKAGE_EXP.evaluate(thisNode);
