@@ -53,15 +53,16 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 				Node javaXml = javaList.item(i);
 				NodeList nativeDeclList = (NodeList) NATIVE_DECL_EXP.evaluate(javaXml, XPathConstants.NODESET);
 				NodeList hostCallList = (NodeList) HOST_CALL_EXP.evaluate(javaXml, XPathConstants.NODESET);
-				// TODO Add case of a loop
 				final int nativeDeclLength = nativeDeclList.getLength();
 				final int hostCallLength = hostCallList.getLength();
 				for (int j = 0; j < nativeDeclLength; j++)
 					nativeDeclSet.add(nativeDeclList.item(j).getTextContent());
 				for (int j = 0; j < hostCallLength; j++) {
-					String thisNode = hostCallList.item(j).getTextContent();
-					if (!hostCallSet.add(thisNode))
-						severalCallSet.add(thisNode);
+					Node thisNode = hostCallList.item(j);
+					String thisMethod = thisNode.getTextContent();
+					boolean isInALoop = !xPath.evaluate("ancestor::for|ancestor::while", thisNode).equals("");
+					if (!hostCallSet.add(thisMethod) || isInALoop)
+						severalCallSet.add(thisMethod);
 				}
 			}
 			nativeDeclSet.retainAll(severalCallSet);
@@ -106,7 +107,6 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 
 					if (nativeDeclSet.contains(funcName)) {
 						NodeList IDs = (NodeList) IDExpr.evaluate(nativeList.item(j), XPathConstants.NODESET);
-						// TODO Add code smell in Java file?
 						for (int k = 0; k < IDs.getLength(); k++)
 							notCachedSet.add(new MLSCodeSmell(this.getCodeSmellName(), IDs.item(k).getTextContent(),
 									funcLongName, "", "", cFilePath));
