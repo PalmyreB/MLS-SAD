@@ -16,10 +16,6 @@ import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
 
 public class UnusedParametersDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
-	// TODO: Create class for XPath ops like intersection and set-difference
-	// Intersection: "%s[. = %s]"
-	// Set-difference: "%s[not(. = %s)]"
-	// Equal to string: "%s[. = '%s']"
 
 	public String getCodeSmellName() {
 		return "UnusedParameters";

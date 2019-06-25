@@ -117,8 +117,6 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 			} else {
 				this.setSetOfAntiPatterns(antiPatternSet);
 			}
-
-			// TODO set a global set to antiPatternSet
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
