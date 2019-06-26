@@ -32,11 +32,12 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 				"FloatArrayElements", "DoubleArrayElements", "PrimitiveArrayCritical", "StringCritical");
 
 		String genericCallQuery = "descendant::call[name/name='%s']";
-		String secondArgQuery = "argument_list/argument[2]/expr/name";
-		String nodeWithGivenArg = "%s[argument_list/argument[2]/expr/name='%s']";
+		String argQuery = "argument_list/argument[%d]/expr/name";
+		String nodeWithGivenArg = "%s[argument_list/argument[%d]/expr/name='%s']";
 
 		try {
-			final XPathExpression secondArgExpr = xPath.compile(secondArgQuery);
+			final XPathExpression firstArgExpr = xPath.compile(String.format(argQuery, 1));
+			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2));
 			final XPathExpression funcExpr = xPath.compile("descendant::function");
 
 			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
@@ -46,6 +47,18 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 				Node cXml = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cXml);
 
+				// C: second argument
+				// C++: first argument
+				boolean isC = LANGUAGE_EXP.evaluate(cXml).equals("C");
+				int nbArg;
+				XPathExpression argExpr;
+				if (isC) { // C file
+					nbArg = 2;
+					argExpr = secondArgExpr;
+				} else { // C ++ file
+					nbArg = 1;
+					argExpr = firstArgExpr;
+				}
 				NodeList funcList = (NodeList) funcExpr.evaluate(cXml, XPathConstants.NODESET);
 				int funcLength = funcList.getLength();
 				// Analysis for each function
@@ -72,8 +85,10 @@ public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetectio
 						// Look for a call to the matching release function
 						// The second argument should match (name of the Java object)
 						for (int k = 0; k < getList.getLength(); k++) {
-							String secondArg = secondArgExpr.evaluate(getList.item(k));
-							String nodeWithGivenArgQuery = String.format(nodeWithGivenArg, releaseCallQuery, secondArg);
+							// TODO Second argument in C, but first in C++?
+							String arg = argExpr.evaluate(getList.item(k));
+							String nodeWithGivenArgQuery = String.format(nodeWithGivenArg, releaseCallQuery, nbArg,
+									arg);
 							String matchedRelease = xPath.evaluate(nodeWithGivenArgQuery, thisFunction);
 							if (matchedRelease == "") {
 								notReleasedSet.add(codeSmell);

@@ -50,10 +50,10 @@ public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection im
 		String selector = String.join(" or ", selectorList);
 		// TODO What if a function is called as the argument of another function
 		// e.g.: GetObjectRefType(env, GetObjectArrayElement(...));
-		String declQuery = String.format("descendant::decl_stmt[%s]/decl/name | descendant::expr_stmt[%s]/expr/name", selector,
-				selector);
+		String declQuery = String.format("descendant::decl_stmt[%s]/decl/name | descendant::expr_stmt[%s]/expr/name",
+				selector, selector);
 		String funcQuery = "descendant::function";
-		String deleteQuery = "descendant::call[name/name='DeleteLocalRef' and argument_list/argument[2]/expr/name='%s']";
+		String deleteQuery = "descendant::call[name/name='DeleteLocalRef' and argument_list/argument[last()]/expr/name='%s']";
 
 		try {
 			final XPathExpression declExpr = xPath.compile(declQuery);

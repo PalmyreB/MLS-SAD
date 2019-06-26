@@ -77,23 +77,36 @@ public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetecti
 			String nativeSelector = String.join(" or ", nativeSelectorList);
 			String IDSelector = String.join(" or ", IDSelectorList);
 			String nativeQuery = String.format("descendant::function[(%s) and name != 'JNI_OnLoad']", nativeSelector);
-			String IDQuery = String.format("descendant::call[%s]//argument_list/argument[position() = 3]", IDSelector);
+			String IDQuery = String.format("descendant::call[%s]//argument_list/", IDSelector)
+					+ "argument[position() = %d]";
 
 			// Queries used for second case detection
 			String funcQuery = "descendant::function[name != 'JNI_OnLoad']";
 			String callTemplate = "descendant::call[name/name = '%s']";
 			String argsQuery = "descendant::argument_list";
-			String argNameQuery = "descendant::argument_list/argument[position() = 3]";
+			String argNameQuery = "descendant::argument_list/argument[position() = %d]";
 
 			final XPathExpression nativeExpr = xPath.compile(nativeQuery);
-			final XPathExpression IDExpr = xPath.compile(IDQuery);
+			final XPathExpression CIDExpr = xPath.compile(String.format(IDQuery, 3));
+			final XPathExpression CPPIDExpr = xPath.compile(String.format(IDQuery, 2));
 			final XPathExpression funcExpr = xPath.compile(funcQuery);
 			final XPathExpression argsExpr = xPath.compile(argsQuery);
-			final XPathExpression argNameExpr = xPath.compile(argNameQuery);
+			final XPathExpression CArgNameExpr = xPath.compile(String.format(argNameQuery, 3));
+			final XPathExpression CPPArgNameExpr = xPath.compile(String.format(argNameQuery, 2));
 
 			for (int i = 0; i < cLength; i++) {
 				Node cXml = cList.item(i);
 				String cFilePath = FILEPATH_EXP.evaluate(cXml);
+				boolean isC = LANGUAGE_EXP.evaluate(cXml).equals("C");
+				XPathExpression IDExpr;
+				XPathExpression argNameExpr;
+				if (isC) {
+					IDExpr = CIDExpr;
+					argNameExpr = CArgNameExpr;
+				} else {
+					IDExpr = CPPIDExpr;
+					argNameExpr = CPPArgNameExpr;
+				}
 
 				NodeList nativeList = (NodeList) nativeExpr.evaluate(cXml, XPathConstants.NODESET);
 				for (int j = 0; j < nativeList.getLength(); j++) {

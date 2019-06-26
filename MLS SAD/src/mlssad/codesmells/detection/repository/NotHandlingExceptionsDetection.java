@@ -44,18 +44,21 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 			String selector = String.join(" or ", selectorList);
 			String exceptSelector = String.join(" or ", exceptSelectorList);
 
-			String declQuery = String.format("descendant::decl_stmt[%s]/decl | descendant::expr_stmt[%s]/expr", selector, selector);
+			String declQuery = String.format("descendant::decl_stmt[%s]/decl | descendant::expr_stmt[%s]/expr",
+					selector, selector);
 			String argQuery = "descendant::call/argument_list/argument[%d]/expr/name | descendant::call/argument_list/argument[%d]/expr/literal";
 			String exceptQuery = String.format("descendant::if/condition/expr/call/name/name[%s]", exceptSelector);
 
 			final XPathExpression declExpr = xPath.compile(declQuery);
 			final XPathExpression exceptExpr = xPath.compile(exceptQuery);
+			final XPathExpression firstArgExpr = xPath.compile(String.format(argQuery, 1, 1));
 			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2, 2));
 			final XPathExpression thirdArgExpr = xPath.compile(String.format(argQuery, 3, 3));
 
 			for (int i = 0; i < cLength; i++) {
 				Node cXml = cList.item(i);
 				final String cFilePath = FILEPATH_EXP.evaluate(cXml);
+				boolean isC = LANGUAGE_EXP.evaluate(cXml).equals("C");
 
 				NodeList declList = (NodeList) declExpr.evaluate(cXml, XPathConstants.NODESET);
 				NodeList exceptList = (NodeList) exceptExpr.evaluate(cXml, XPathConstants.NODESET);
@@ -63,10 +66,23 @@ public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection i
 				final int exceptLength = exceptList.getLength();
 
 				for (int j = 0; j < declLength; j++) {
-					String funcName = FUNC_EXP.evaluate(declList.item(j));
-					String arg = thirdArgExpr.evaluate(declList.item(j));
-					if (arg.equals("")) // Case of FindClass, that has only two arguments
-						arg = secondArgExpr.evaluate(declList.item(j));
+					Node thisDecl = declList.item(j);
+					String funcName = FUNC_EXP.evaluate(thisDecl);
+					String arg;
+
+					// C file
+					if (isC) {
+						arg = thirdArgExpr.evaluate(thisDecl);
+						if (arg.equals("")) // Case of FindClass, that has only two arguments
+							arg = secondArgExpr.evaluate(thisDecl);
+					}
+
+					// C++ file
+					else {
+						arg = secondArgExpr.evaluate(thisDecl);
+						if (arg.equals("")) // Case of FindClass, that has only two arguments
+							arg = firstArgExpr.evaluate(thisDecl);
+					}
 
 					boolean isNotChecked = true;
 
