@@ -30,20 +30,24 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 
 		try {
 			final XPathExpression funcExpr = xPath.compile(funcQuery);
-			final XPathExpression typeExpr = xPath.compile("parent::*/type");
-			final XPathExpression indexExpr = xPath.compile("parent::*/name/index");
+			final XPathExpression typeExpr = xPath.compile("../type | ../../type");
+			final XPathExpression indexExpr = xPath.compile("../../name/index");
 
 			NodeList fileList = (NodeList) FILE_EXP.evaluate(xml, XPathConstants.NODESET);
 			final int fileLength = fileList.getLength();
 			for (int i = 0; i < fileLength; i++) {
 				Node thisFileNode = fileList.item(i);
 				String language = LANGUAGE_EXP.evaluate(thisFileNode);
+				String paramTemplate = "parameter_list/parameter%s/decl/name%s";
 				if (language.equals("C") || language.equals("C++"))
 					// Skip first two parameters, which are the JNI environment and the class for a
 					// static method or the object for a non-static method
-					paramQuery = "parameter_list/parameter[position()>2]/decl/name";
+					paramQuery = String.format(paramTemplate, "[position()>2]", "");
 				else if (language.equals("Java"))
-					paramQuery = "parameter_list/parameter/decl/name";
+					// Select the parameters, excluding '[]' from the name of arrays
+					paramQuery = String.format("(%s | %s)",
+							String.format(paramTemplate, "", "[not(contains(., '[]'))]"),
+							String.format(paramTemplate, "", "[contains(., '[]')]/name"));
 				else
 					continue;
 				String filePath = FILEPATH_EXP.evaluate(thisFileNode);
@@ -65,9 +69,9 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 
 						// Check if the current method is not the main method,
 						// in which case it is frequent not to use the args[]
-						boolean isStringArray = (typeExpr.evaluate(thisNode).equals("String")
-								&& indexExpr.evaluate(thisNode).equals("[]"))
-								|| typeExpr.evaluate(thisNode).equals("String[]");
+						String thisType = typeExpr.evaluate(thisNode);
+						boolean isStringArray = (thisType.equals("String") && indexExpr.evaluate(thisNode).equals("[]"))
+								|| thisType.equals("String[]");
 						if (!(length == 1 && thisFunc.equals("main") && isStringArray)) {
 							unusedParamsSet.add(new MLSCodeSmell(this.getCodeSmellName(), thisParam, thisFunc,
 									thisClass, thisPackage, filePath));
