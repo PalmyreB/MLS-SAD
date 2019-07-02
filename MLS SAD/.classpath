@@ -8,8 +8,6 @@
 			<accessrule kind="accessible" pattern="javax.xml.xpath.**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/PADL"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/SAD"/>
 	<classpathentry kind="lib" path="rsc/commons-compress-1.18/commons-compress-1.18.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="output" path="bin"/>
