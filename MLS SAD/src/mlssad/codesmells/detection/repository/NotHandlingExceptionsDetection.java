@@ -5,96 +5,150 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
 
-public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
+public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection
+		implements ICodeSmellDetection {
 
 	public void detect(final Document xml) {
 
-		Set<String> methods = new HashSet<>(
-				Arrays.asList("FindClass", "GetFieldID", "GetStaticFieldID", "GetMethodID", "GetStaticMethodID"));
-		Set<String> exceptions = new HashSet<>(Arrays.asList("ExceptionOccurred", "ExceptionCheck"));
-		Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
+		final Set<String> methods = new HashSet<>(
+			Arrays
+				.asList(
+					"FindClass",
+					"GetFieldID",
+					"GetStaticFieldID",
+					"GetMethodID",
+					"GetStaticMethodID"));
+		final Set<String> exceptions =
+			new HashSet<>(Arrays.asList("ExceptionOccurred", "ExceptionCheck"));
+		final Set<MLSCodeSmell> notCheckedSet = new HashSet<>();
 
 		try {
-			NodeList cList = (NodeList) C_FILES_EXP.evaluate(xml, XPathConstants.NODESET);
+			final NodeList cList =
+				(NodeList) AbstractCodeSmellDetection.C_FILES_EXP
+					.evaluate(xml, XPathConstants.NODESET);
 			final int cLength = cList.getLength();
 
-			List<String> selectorList = new LinkedList<>();
-			List<String> exceptSelectorList = new LinkedList<>();
-			for (String method : methods)
-				selectorList.add(String.format("descendant::call/name/name = '%s'", method));
-			for (String exception : exceptions)
+			final List<String> selectorList = new LinkedList<>();
+			final List<String> exceptSelectorList = new LinkedList<>();
+			for (final String method : methods) {
+				selectorList
+					.add(
+						String
+							.format(
+								"descendant::call/name/name = '%s'",
+								method));
+			}
+			for (final String exception : exceptions) {
 				exceptSelectorList.add(String.format(". = '%s'", exception));
-			String selector = String.join(" or ", selectorList);
-			String exceptSelector = String.join(" or ", exceptSelectorList);
+			}
+			final String selector = String.join(" or ", selectorList);
+			final String exceptSelector =
+				String.join(" or ", exceptSelectorList);
 
-			String declQuery = String.format("descendant::decl_stmt[%s]/decl | descendant::expr_stmt[%s]/expr",
-					selector, selector);
-			String argQuery = "descendant::call/argument_list/argument[%d]/expr/name | descendant::call/argument_list/argument[%d]/expr/literal";
-			String exceptQuery = String.format("descendant::if/condition/expr/call/name/name[%s]", exceptSelector);
+			final String declQuery = String
+				.format(
+					"descendant::decl_stmt[%s]/decl | descendant::expr_stmt[%s]/expr",
+					selector,
+					selector);
+			final String argQuery =
+				"descendant::call/argument_list/argument[%d]/expr/name | descendant::call/argument_list/argument[%d]/expr/literal";
+			final String exceptQuery = String
+				.format(
+					"descendant::if/condition/expr/call/name/name[%s]",
+					exceptSelector);
 
-			final XPathExpression declExpr = xPath.compile(declQuery);
-			final XPathExpression exceptExpr = xPath.compile(exceptQuery);
-			final XPathExpression firstArgExpr = xPath.compile(String.format(argQuery, 1, 1));
-			final XPathExpression secondArgExpr = xPath.compile(String.format(argQuery, 2, 2));
-			final XPathExpression thirdArgExpr = xPath.compile(String.format(argQuery, 3, 3));
+			final XPathExpression declExpr =
+				AbstractCodeSmellDetection.xPath.compile(declQuery);
+			final XPathExpression exceptExpr =
+				AbstractCodeSmellDetection.xPath.compile(exceptQuery);
+			final XPathExpression firstArgExpr =
+				AbstractCodeSmellDetection.xPath
+					.compile(String.format(argQuery, 1, 1));
+			final XPathExpression secondArgExpr =
+				AbstractCodeSmellDetection.xPath
+					.compile(String.format(argQuery, 2, 2));
+			final XPathExpression thirdArgExpr =
+				AbstractCodeSmellDetection.xPath
+					.compile(String.format(argQuery, 3, 3));
 
 			for (int i = 0; i < cLength; i++) {
-				Node cXml = cList.item(i);
-				final String cFilePath = FILEPATH_EXP.evaluate(cXml);
-				boolean isC = LANGUAGE_EXP.evaluate(cXml).equals("C");
+				final Node cXml = cList.item(i);
+				final String cFilePath =
+					AbstractCodeSmellDetection.FILEPATH_EXP.evaluate(cXml);
+				final boolean isC = AbstractCodeSmellDetection.LANGUAGE_EXP
+					.evaluate(cXml)
+					.equals("C");
 
-				NodeList declList = (NodeList) declExpr.evaluate(cXml, XPathConstants.NODESET);
-				NodeList exceptList = (NodeList) exceptExpr.evaluate(cXml, XPathConstants.NODESET);
+				final NodeList declList =
+					(NodeList) declExpr.evaluate(cXml, XPathConstants.NODESET);
+				final NodeList exceptList = (NodeList) exceptExpr
+					.evaluate(cXml, XPathConstants.NODESET);
 				final int declLength = declList.getLength();
 				final int exceptLength = exceptList.getLength();
 
 				for (int j = 0; j < declLength; j++) {
-					Node thisDecl = declList.item(j);
-					String funcName = FUNC_EXP.evaluate(thisDecl);
+					final Node thisDecl = declList.item(j);
+					final String funcName =
+						AbstractCodeSmellDetection.FUNC_EXP.evaluate(thisDecl);
 					String arg;
 
 					// C file
 					if (isC) {
 						arg = thirdArgExpr.evaluate(thisDecl);
-						if (arg.equals("")) // Case of FindClass, that has only two arguments
+						if (arg.equals("")) {
 							arg = secondArgExpr.evaluate(thisDecl);
+						}
 					}
 
 					// C++ file
 					else {
 						arg = secondArgExpr.evaluate(thisDecl);
-						if (arg.equals("")) // Case of FindClass, that has only two arguments
+						if (arg.equals("")) {
 							arg = firstArgExpr.evaluate(thisDecl);
+						}
 					}
 
 					boolean isNotChecked = true;
 
 					// Check if the exception is handled
-					for (int k = 0; k < exceptLength; k++)
-						if (declList.item(j)
-								.compareDocumentPosition(exceptList.item(k)) == Node.DOCUMENT_POSITION_FOLLOWING)
+					for (int k = 0; k < exceptLength; k++) {
+						if (declList
+							.item(j)
+							.compareDocumentPosition(
+								exceptList
+									.item(
+										k)) == Node.DOCUMENT_POSITION_FOLLOWING) {
 							isNotChecked = false;
+						}
+					}
 
-					if (isNotChecked)
-						notCheckedSet.add(new MLSCodeSmell(this.getCodeSmellName(), arg, funcName, "", "", cFilePath));
+					if (isNotChecked) {
+						notCheckedSet
+							.add(
+								new MLSCodeSmell(
+									this.getCodeSmellName(),
+									arg,
+									funcName,
+									"",
+									"",
+									cFilePath));
+					}
 				}
 			}
 
 			this.setSetOfSmells(notCheckedSet);
-		} catch (XPathExpressionException e) {
+		}
+		catch (final XPathExpressionException e) {
 			e.printStackTrace();
 		}
 	}

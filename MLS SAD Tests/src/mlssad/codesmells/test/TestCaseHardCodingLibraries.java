@@ -9,18 +9,32 @@ public class TestCaseHardCodingLibraries extends AbstractCodeSmellTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		codeSmell = "HardCodingLibraries";
-//		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/HardCodingLibraries.c";
-		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/HardCodingLibraries.java";
-		String thisPackage = "codeSmellsJava";
-		String thisClass = "HardCodingLibraries";
-		String thisMethod = "run";
-		expectedSmells = new HashSet<>(Arrays.asList(
-				new MLSCodeSmell(codeSmell, "libDir + \"/JNILIB.so\"", thisMethod, thisClass, thisPackage, aPathJava),
-				new MLSCodeSmell(codeSmell, "libDir + \"/JNILIB.dll\"", thisMethod, thisClass, thisPackage, aPathJava)
-		));
+		AbstractCodeSmellTestCase.codeSmell = "HardCodingLibraries";
+		//		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/HardCodingLibraries.c";
+		AbstractCodeSmellTestCase.aPathJava =
+			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/HardCodingLibraries.java";
+		final String thisPackage = "codeSmellsJava";
+		final String thisClass = "HardCodingLibraries";
+		final String thisMethod = "run";
+		AbstractCodeSmellTestCase.expectedSmells = new HashSet<>(
+			Arrays
+				.asList(
+					new MLSCodeSmell(
+						AbstractCodeSmellTestCase.codeSmell,
+						"libDir + \"/JNILIB.so\"",
+						thisMethod,
+						thisClass,
+						thisPackage,
+						AbstractCodeSmellTestCase.aPathJava),
+					new MLSCodeSmell(
+						AbstractCodeSmellTestCase.codeSmell,
+						"libDir + \"/JNILIB.dll\"",
+						thisMethod,
+						thisClass,
+						thisPackage,
+						AbstractCodeSmellTestCase.aPathJava)));
 
-		detector = new HardCodingLibrariesDetection();
+		AbstractCodeSmellTestCase.detector = new HardCodingLibrariesDetection();
 	}
 
 }

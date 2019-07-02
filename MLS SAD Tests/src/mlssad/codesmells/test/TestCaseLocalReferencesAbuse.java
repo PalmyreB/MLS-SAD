@@ -9,11 +9,21 @@ public class TestCaseLocalReferencesAbuse extends AbstractCodeSmellTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/LocalReferencesAbuse.c";
-//		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/LocalReferencesAbuse.java";
-		expectedSmells = new HashSet<>(Arrays.asList(new MLSCodeSmell("LocalReferencesAbuse", "element",
-				"Java_codeSmellsJava_LocalReferencesAbuse_isAnyElementNull", "", "", aPathC)));
-		detector = new LocalReferencesAbuseDetection();
+		AbstractCodeSmellTestCase.aPathC =
+			"../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/LocalReferencesAbuse.c";
+		//		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/LocalReferencesAbuse.java";
+		AbstractCodeSmellTestCase.expectedSmells = new HashSet<>(
+			Arrays
+				.asList(
+					new MLSCodeSmell(
+						"LocalReferencesAbuse",
+						"element",
+						"Java_codeSmellsJava_LocalReferencesAbuse_isAnyElementNull",
+						"",
+						"",
+						AbstractCodeSmellTestCase.aPathC)));
+		AbstractCodeSmellTestCase.detector =
+			new LocalReferencesAbuseDetection();
 	}
 
 }

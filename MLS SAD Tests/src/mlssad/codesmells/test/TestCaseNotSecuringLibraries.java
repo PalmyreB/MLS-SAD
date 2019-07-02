@@ -9,11 +9,21 @@ public class TestCaseNotSecuringLibraries extends AbstractCodeSmellTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-//		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/NotSecuringLibraries.c";
-		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/NotSecuringLibraries.java";
-		expectedSmells = new HashSet<>(
-				Arrays.asList(new MLSCodeSmell("NotSecuringLibraries", "\"JNILIB\"", "", "NotSecuringLibraries", "codeSmellsJava", aPathJava)));
-		detector = new NotSecuringLibrariesDetection();
+		//		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/NotSecuringLibraries.c";
+		AbstractCodeSmellTestCase.aPathJava =
+			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/NotSecuringLibraries.java";
+		AbstractCodeSmellTestCase.expectedSmells = new HashSet<>(
+			Arrays
+				.asList(
+					new MLSCodeSmell(
+						"NotSecuringLibraries",
+						"\"JNILIB\"",
+						"",
+						"NotSecuringLibraries",
+						"codeSmellsJava",
+						AbstractCodeSmellTestCase.aPathJava)));
+		AbstractCodeSmellTestCase.detector =
+			new NotSecuringLibrariesDetection();
 	}
 
 }

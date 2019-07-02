@@ -6,23 +6,35 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.w3c.dom.Document;
-
 import mlssad.antipatterns.detection.IAntiPatternDetection;
-import mlssad.antipatterns.detection.repository.*;
+import mlssad.antipatterns.detection.repository.ExcessiveInterLanguageCommunicationDetection;
+import mlssad.antipatterns.detection.repository.TooMuchClusteringDetection;
+import mlssad.antipatterns.detection.repository.TooMuchScatteringDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
-import mlssad.codesmells.detection.repository.*;
+import mlssad.codesmells.detection.repository.AssumingSelfMultiLanguageReturnValuesDetection;
+import mlssad.codesmells.detection.repository.HardCodingLibrariesDetection;
+import mlssad.codesmells.detection.repository.LocalReferencesAbuseDetection;
+import mlssad.codesmells.detection.repository.MemoryManagementMismatchDetection;
+import mlssad.codesmells.detection.repository.NotCachingObjectsElementsDetection;
+import mlssad.codesmells.detection.repository.NotHandlingExceptionsDetection;
+import mlssad.codesmells.detection.repository.NotSecuringLibrariesDetection;
+import mlssad.codesmells.detection.repository.NotUsingRelativePathDetection;
+import mlssad.codesmells.detection.repository.PassingExcessiveObjectsDetection;
+import mlssad.codesmells.detection.repository.UnusedDeclarationDetection;
+import mlssad.codesmells.detection.repository.UnusedImplementationDetection;
+import mlssad.codesmells.detection.repository.UnusedParametersDetection;
 import mlssad.utils.CodeToXml;
 
 public class DetectCodeSmellsAndAntiPatterns {
 
-	public static void main(String[] args) {
-		long start = System.currentTimeMillis();
-		Set<ICodeSmellDetection> codeSmellDetectors = new HashSet<>();
-		Set<IAntiPatternDetection> antiPatternDetectors = new HashSet<>();
+	public static void main(final String[] args) {
+		final long start = System.currentTimeMillis();
+		final Set<ICodeSmellDetection> codeSmellDetectors = new HashSet<>();
+		final Set<IAntiPatternDetection> antiPatternDetectors = new HashSet<>();
 
-		codeSmellDetectors.add(new AssumingSelfMultiLanguageReturnValuesDetection());
+		codeSmellDetectors
+			.add(new AssumingSelfMultiLanguageReturnValuesDetection());
 		codeSmellDetectors.add(new HardCodingLibrariesDetection());
 		codeSmellDetectors.add(new LocalReferencesAbuseDetection());
 		codeSmellDetectors.add(new MemoryManagementMismatchDetection());
@@ -35,34 +47,54 @@ public class DetectCodeSmellsAndAntiPatterns {
 		codeSmellDetectors.add(new UnusedImplementationDetection());
 		codeSmellDetectors.add(new UnusedParametersDetection());
 
-		antiPatternDetectors.add(new ExcessiveInterLanguageCommunicationDetection());
+		antiPatternDetectors
+			.add(new ExcessiveInterLanguageCommunicationDetection());
 		antiPatternDetectors.add(new TooMuchClusteringDetection());
 		antiPatternDetectors.add(new TooMuchScatteringDetection());
 
-		Document xml = CodeToXml.parse(args);
+		final Document xml = CodeToXml.parse(args);
+		System.out
+			.println(
+				"The creation of the XML took "
+						+ (System.currentTimeMillis() - start) + " ms.\n");
 
 		try {
 			int id = 0;
 			// FileWriter(..., false): no auto-append, write at the beginning of the file
 			// PrintWriter(..., false): no autoflush for performance reason
-			PrintWriter outputWriter = new PrintWriter(
-					new BufferedWriter(new FileWriter("Detection_of_code_smells_and_anti_patterns.csv", false)), false);
+			final PrintWriter outputWriter = new PrintWriter(
+				new BufferedWriter(
+					new FileWriter(
+						"Detection_of_code_smells_and_anti_patterns.csv",
+						false)),
+				false);
 			outputWriter.println("ID,Name,Variable,Method,Class,Package,File");
-			for (ICodeSmellDetection detector : codeSmellDetectors) {
+			for (final ICodeSmellDetection detector : codeSmellDetectors) {
 				detector.detect(xml);
 				detector.output(outputWriter, id);
-				id += detector.getCodeSmells().size();
+				final int nbCodeSmells = detector.getCodeSmells().size();
+				id += nbCodeSmells;
+				System.out
+					.println(detector.getCodeSmellName() + ": " + nbCodeSmells);
 			}
 
-			for (IAntiPatternDetection detector : antiPatternDetectors) {
+			for (final IAntiPatternDetection detector : antiPatternDetectors) {
 				detector.detect(xml);
 				detector.output(outputWriter, id);
-				id += detector.getAntiPatterns().size();
+				final int nbAntiPatterns = detector.getAntiPatterns().size();
+				id += nbAntiPatterns;
+				System.out
+					.println(
+						detector.getAntiPatternName() + ": " + nbAntiPatterns);
 			}
 			outputWriter.flush();
 			outputWriter.close();
-			System.out.println("The detection took " + (System.currentTimeMillis() - start) + " ms.");
-		} catch (IOException e) {
+			System.out
+				.println(
+					"\nThe detection took "
+							+ (System.currentTimeMillis() - start) + " ms.");
+		}
+		catch (final IOException e) {
 			System.out.println("Cannot create output file");
 			e.printStackTrace();
 		}

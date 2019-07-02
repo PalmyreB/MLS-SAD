@@ -14,13 +14,18 @@ public class MLSCodeSmell {
 	private String packageName;
 	private String filePath;
 
-	public MLSCodeSmell(String aMethod, String aClass) {
+	public MLSCodeSmell(final String aMethod, final String aClass) {
 		this.methodName = aMethod;
 		this.className = aClass;
 	}
 
-	public MLSCodeSmell(String aCodeSmell, String aVariable, String aMethod, String aClass, String aPackage,
-			String aPath) {
+	public MLSCodeSmell(
+		final String aCodeSmell,
+		final String aVariable,
+		final String aMethod,
+		final String aClass,
+		final String aPackage,
+		final String aPath) {
 		this.codeSmellName = aCodeSmell;
 		this.variableName = aVariable;
 		this.methodName = aMethod;
@@ -29,78 +34,60 @@ public class MLSCodeSmell {
 		this.filePath = aPath;
 	}
 
-	public String getCodeSmellName() {
-		return codeSmellName;
-	}
+	@Override
+	public boolean equals(final Object o) {
+		if (o == null) {
+			return false;
+		}
 
-	public void setAntiPatternName(String antiPatternName) {
-		this.codeSmellName = antiPatternName;
-	}
+		if (!(o instanceof MLSCodeSmell)) {
+			return false;
+		}
 
-	public int getLineNumber() {
-		return lineNumber;
-	}
+		if (o == this) {
+			return true;
+		}
 
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public void setVariableName(String variableName) {
-		this.variableName = variableName;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
+		return this
+			.getElementsList()
+			.equals(((MLSCodeSmell) o).getElementsList());
 	}
 
 	public String getClassName() {
-		return className;
+		return this.className;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public String getPackageName() {
-		return packageName;
-	}
-
-	public void setPackageName(String packageName) {
-		this.packageName = packageName;
-	}
-
-	public String getFilePath() {
-		return filePath;
-	}
-
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
+	public String getCodeSmellName() {
+		return this.codeSmellName;
 	}
 
 	protected List<String> getElementsList() {
-		return Arrays.asList(this.packageName, this.className, this.methodName, this.variableName);
+		return Arrays
+			.asList(
+				this.packageName,
+				this.className,
+				this.methodName,
+				this.variableName);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null)
-			return false;
+	public String getFilePath() {
+		return this.filePath;
+	}
 
-		if (!(o instanceof MLSCodeSmell))
-			return false;
+	public int getLineNumber() {
+		return this.lineNumber;
+	}
 
-		if (o == this)
-			return true;
+	public String getMethodName() {
+		return this.methodName;
+	}
 
-		return this.getElementsList().equals(((MLSCodeSmell) o).getElementsList());
+	public String getPackageName() {
+		return this.packageName;
+	}
+
+	public String getVariableName() {
+		return this.variableName;
 	}
 
 	@Override
@@ -108,40 +95,74 @@ public class MLSCodeSmell {
 		return this.getElementsList().hashCode();
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{ Code Smell \"");
-		sb.append(codeSmellName);
-		sb.append("\"");
-		if (!variableName.isEmpty()) {
-			sb.append("\n\tVariable: ");
-			sb.append(variableName);
-		}
-		if (!methodName.isEmpty()) {
-			sb.append("\n\tMethod: ");
-			sb.append(methodName);
-		}
-		if (!className.isEmpty()) {
-			sb.append("\n\tClass: ");
-			sb.append(className);
-		}
-		if (!packageName.isEmpty()) {
-			sb.append("\n\tPackage: ");
-			sb.append(packageName);
-		}
-		if (!filePath.isEmpty()) {
-			sb.append("\n\tFile path: ");
-			sb.append(filePath);
-		}
-		sb.append("\n}");
-		return sb.toString();
+	public void setAntiPatternName(final String antiPatternName) {
+		this.codeSmellName = antiPatternName;
+	}
+
+	public void setClassName(final String className) {
+		this.className = className;
+	}
+
+	public void setFilePath(final String filePath) {
+		this.filePath = filePath;
+	}
+
+	public void setLineNumber(final int lineNumber) {
+		this.lineNumber = lineNumber;
+	}
+
+	public void setMethodName(final String methodName) {
+		this.methodName = methodName;
+	}
+
+	public void setPackageName(final String packageName) {
+		this.packageName = packageName;
+	}
+
+	public void setVariableName(final String variableName) {
+		this.variableName = variableName;
 	}
 
 	public String toCSVLine() {
-		List<String> elements = Arrays.asList(codeSmellName, variableName, methodName, className, packageName,
-				filePath);
+		final List<String> elements = Arrays
+			.asList(
+				this.codeSmellName,
+				this.variableName,
+				this.methodName,
+				this.className,
+				this.packageName,
+				this.filePath);
 		return String.join(",", elements);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("{ Code Smell \"");
+		sb.append(this.codeSmellName);
+		sb.append("\"");
+		if (!this.variableName.isEmpty()) {
+			sb.append("\n\tVariable: ");
+			sb.append(this.variableName);
+		}
+		if (!this.methodName.isEmpty()) {
+			sb.append("\n\tMethod: ");
+			sb.append(this.methodName);
+		}
+		if (!this.className.isEmpty()) {
+			sb.append("\n\tClass: ");
+			sb.append(this.className);
+		}
+		if (!this.packageName.isEmpty()) {
+			sb.append("\n\tPackage: ");
+			sb.append(this.packageName);
+		}
+		if (!this.filePath.isEmpty()) {
+			sb.append("\n\tFile path: ");
+			sb.append(this.filePath);
+		}
+		sb.append("\n}");
+		return sb.toString();
 	}
 
 }

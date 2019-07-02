@@ -4,7 +4,7 @@
  * are made available under the terms of the GNU Public License v2.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * 
+ *
  * Contributors:
  *     Yann-Gaël Guéhéneuc and others, see in file; API and its implementation
  ******************************************************************************/
@@ -13,18 +13,16 @@ package mlssad.codesmells.detection;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import org.w3c.dom.Document;
-
 import mlssad.kernel.impl.MLSCodeSmell;
 
-public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection {
-//	private BoxPlot boxPlot;
+public abstract class AbstractCodeSmellDetection
+		implements ICodeSmellDetection {
+	//	private BoxPlot boxPlot;
 	protected static XPath xPath = XPathFactory.newInstance().newXPath();
 
 	protected static XPathExpression FILE_EXP;
@@ -41,19 +39,44 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 	protected static XPathExpression HOST_CALL_EXP;
 	static {
 		try {
-			FILE_EXP = xPath.compile(FILE_QUERY);
-			C_FILES_EXP = xPath.compile(C_FILES_QUERY);
-			JAVA_FILES_EXP = xPath.compile(JAVA_FILES_QUERY);
-			LANGUAGE_EXP = xPath.compile(LANGUAGE_QUERY);
-			FUNC_EXP = xPath.compile(FUNC_QUERY);
-			CLASS_EXP = xPath.compile(CLASS_QUERY);
-			PACKAGE_EXP = xPath.compile(PACKAGE_QUERY);
-			FILEPATH_EXP = xPath.compile(FILEPATH_QUERY);
-			NAME_EXP = xPath.compile(NAME_QUERY);
-			NATIVE_DECL_EXP = xPath.compile(NATIVE_DECL_QUERY);
-			IMPL_EXP = xPath.compile(IMPL_QUERY);
-			HOST_CALL_EXP = xPath.compile(HOST_CALL_QUERY);
-		} catch (XPathExpressionException e) {
+			AbstractCodeSmellDetection.FILE_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.FILE_QUERY);
+			AbstractCodeSmellDetection.C_FILES_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.C_FILES_QUERY);
+			AbstractCodeSmellDetection.JAVA_FILES_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.JAVA_FILES_QUERY);
+			AbstractCodeSmellDetection.LANGUAGE_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.LANGUAGE_QUERY);
+			AbstractCodeSmellDetection.FUNC_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.FUNC_QUERY);
+			AbstractCodeSmellDetection.CLASS_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.CLASS_QUERY);
+			AbstractCodeSmellDetection.PACKAGE_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.PACKAGE_QUERY);
+			AbstractCodeSmellDetection.FILEPATH_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.FILEPATH_QUERY);
+			AbstractCodeSmellDetection.NAME_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.NAME_QUERY);
+			AbstractCodeSmellDetection.NATIVE_DECL_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.NATIVE_DECL_QUERY);
+			AbstractCodeSmellDetection.IMPL_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.IMPL_QUERY);
+			AbstractCodeSmellDetection.HOST_CALL_EXP =
+				AbstractCodeSmellDetection.xPath
+					.compile(ICodeSmellDetection.HOST_CALL_QUERY);
+		}
+		catch (final XPathExpressionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -66,9 +89,13 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 
 	public abstract void detect(final Document xml);
 
-//	protected BoxPlot getBoxPlot() {
-//		return this.boxPlot;
-//	}
+	//	protected BoxPlot getBoxPlot() {
+	//		return this.boxPlot;
+	//	}
+
+	public String getCodeSmellName() {
+		return this.getClass().getSimpleName();
+	}
 
 	public Set<MLSCodeSmell> getCodeSmells() {
 		return this.setOfSmells;
@@ -76,10 +103,6 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 
 	public String getHelpURL() {
 		return "";
-	}
-
-	public String getCodeSmellName() {
-		return this.getClass().getSimpleName();
 	}
 
 	public String getName() {
@@ -90,7 +113,7 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 	 * Return a file that displays all the smells detected
 	 */
 	public void output(final PrintWriter aWriter) {
-		output(aWriter, 0);
+		this.output(aWriter, 0);
 	}
 
 	public void output(final PrintWriter aWriter, int count) {
@@ -101,14 +124,15 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 				count++;
 				aWriter.println("CS" + count + "," + codeSmell.toCSVLine());
 			}
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			e.printStackTrace();
 		}
 	}
 
-//	protected void setBoxPlot(final BoxPlot boxPlot) {
-//		this.boxPlot = boxPlot;
-//	}
+	//	protected void setBoxPlot(final BoxPlot boxPlot) {
+	//		this.boxPlot = boxPlot;
+	//	}
 
 	protected void setSetOfSmells(final Set<MLSCodeSmell> setOfSmells) {
 		this.setOfSmells = setOfSmells;

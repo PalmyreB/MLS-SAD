@@ -6,15 +6,17 @@ import java.util.Properties;
 
 final public class PropertyGetter {
 
-	public static int getIntProp(String prop, int defaultValue) {
-		Properties props = new Properties();
+	public static int getIntProp(final String prop, final int defaultValue) {
+		final Properties props = new Properties();
 		try {
 			props.load(new FileInputStream("../MLS SAD/rsc/config.properties"));
-		} catch (IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 
-		return Integer.parseInt(props.getProperty(prop, Integer.toString(defaultValue)));
+		return Integer
+			.parseInt(props.getProperty(prop, Integer.toString(defaultValue)));
 	}
 
 }

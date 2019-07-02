@@ -10,16 +10,46 @@ public class TestCaseUnusedImplementation extends AbstractCodeSmellTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		aPathC = "../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/UnusedImplementation.c";
-		aPathJava = "../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/UnusedImplementation.java";
+		AbstractCodeSmellTestCase.aPathC =
+			"../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/UnusedImplementation.c";
+		AbstractCodeSmellTestCase.aPathJava =
+			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/codeSmellsJava/UnusedImplementation.java";
 		final String cs = "UnusedImplementation";
 		final String cls = "UnusedImplementation";
 		final String pkg = "codeSmellsJava";
-		expectedSmells = new HashSet<>(Arrays.asList(new MLSCodeSmell(cs, "", "sayHelloSeptember", cls, pkg, aPathJava),
-				new MLSCodeSmell(cs, "", "sayHelloOctober", cls, pkg, aPathJava),
-				new MLSCodeSmell(cs, "", "sayHelloNovember", cls, pkg, aPathJava),
-				new MLSCodeSmell(cs, "", "sayHelloDecember", cls, pkg, aPathJava)));
-		detector = new UnusedImplementationDetection();
+		AbstractCodeSmellTestCase.expectedSmells = new HashSet<>(
+			Arrays
+				.asList(
+					new MLSCodeSmell(
+						cs,
+						"",
+						"sayHelloSeptember",
+						cls,
+						pkg,
+						AbstractCodeSmellTestCase.aPathJava),
+					new MLSCodeSmell(
+						cs,
+						"",
+						"sayHelloOctober",
+						cls,
+						pkg,
+						AbstractCodeSmellTestCase.aPathJava),
+					new MLSCodeSmell(
+						cs,
+						"",
+						"sayHelloNovember",
+						cls,
+						pkg,
+						AbstractCodeSmellTestCase.aPathJava),
+					new MLSCodeSmell(
+						cs,
+						"",
+						"sayHelloDecember",
+						cls,
+						pkg,
+						AbstractCodeSmellTestCase.aPathJava)));
+		AbstractCodeSmellTestCase.detector =
+			new UnusedImplementationDetection();
 	}
 
 }
