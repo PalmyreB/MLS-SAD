@@ -20,10 +20,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotHandlingExceptionsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "NotHandlingExceptions";
-	}
-
 	public void detect(final Document xml) {
 
 		Set<String> methods = new HashSet<>(

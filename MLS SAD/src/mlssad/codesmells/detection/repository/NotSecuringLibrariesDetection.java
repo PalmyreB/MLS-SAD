@@ -17,10 +17,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotSecuringLibrariesDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "NotSecuringLibraries";
-	}
-
 	public void detect(final Document xml) {
 		Set<MLSCodeSmell> notSecureLibraries = new HashSet<>();
 

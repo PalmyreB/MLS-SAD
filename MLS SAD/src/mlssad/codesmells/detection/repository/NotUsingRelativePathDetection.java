@@ -17,10 +17,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotUsingRelativePathDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "HardCodingLibraries";
-	}
-
 	public void detect(final Document xml) {
 		Set<MLSCodeSmell> notRelativePathsSet = new HashSet<>();
 

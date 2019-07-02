@@ -22,11 +22,6 @@ public class ExcessiveInterLanguageCommunicationDetection extends AbstractAntiPa
 		implements IAntiPatternDetection {
 
 	@Override
-	public String getAntiPatternName() {
-		return "ExcessiveInterLanguageCommunication";
-	}
-
-	@Override
 	public void detect(Document xml) {
 		/*
 		 * UNTREATED CASE Calls in both ways: Java to C and C to Java

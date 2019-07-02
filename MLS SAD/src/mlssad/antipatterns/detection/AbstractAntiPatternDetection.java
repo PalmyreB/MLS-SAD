@@ -36,7 +36,9 @@ public abstract class AbstractAntiPatternDetection {
 		return "";
 	}
 
-	public abstract String getAntiPatternName();
+	public String getAntiPatternName() {
+		return this.getClass().getSimpleName();
+	}
 
 	public String getName() {
 		return this.getAntiPatternName() + "Detection";

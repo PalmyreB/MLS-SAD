@@ -19,11 +19,6 @@ import mlssad.utils.PropertyGetter;
 public class TooMuchClusteringDetection extends AbstractAntiPatternDetection implements IAntiPatternDetection {
 
 	@Override
-	public String getAntiPatternName() {
-		return "TooMuchClustering";
-	}
-
-	@Override
 	public void detect(Document xml) {
 		final int minNbOfMethodsPerClass = PropertyGetter.getIntProp("TooMuchClustering.MinNbOfMethodsPerClass", 6);
 

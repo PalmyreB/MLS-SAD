@@ -78,7 +78,9 @@ public abstract class AbstractCodeSmellDetection implements ICodeSmellDetection 
 		return "";
 	}
 
-	public abstract String getCodeSmellName();
+	public String getCodeSmellName() {
+		return this.getClass().getSimpleName();
+	}
 
 	public String getName() {
 		return this.getCodeSmellName() + "Detection";

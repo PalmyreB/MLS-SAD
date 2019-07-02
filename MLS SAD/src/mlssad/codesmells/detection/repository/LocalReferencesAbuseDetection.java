@@ -21,10 +21,6 @@ import mlssad.utils.PropertyGetter;
 
 public class LocalReferencesAbuseDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "LocalReferencesAbuse";
-	}
-
 	public void detect(final Document xml) {
 		// TODO jint EnsureLocalCapacity(JNIEnv *env, jint capacity);
 		// jint PushLocalFrame(JNIEnv *env, jint capacity);

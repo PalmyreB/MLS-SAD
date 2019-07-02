@@ -18,10 +18,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class UnusedImplementationDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "UnusedImplementation";
-	}
-
 	public void detect(final Document xml) {
 		Map<String, MLSCodeSmell> unusedImplMap = new HashMap<>();
 

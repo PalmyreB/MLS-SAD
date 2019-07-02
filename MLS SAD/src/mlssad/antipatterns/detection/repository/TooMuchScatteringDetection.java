@@ -23,11 +23,6 @@ import mlssad.utils.PropertyGetter;
 public class TooMuchScatteringDetection extends AbstractAntiPatternDetection implements IAntiPatternDetection {
 
 	@Override
-	public String getAntiPatternName() {
-		return "TooMuchScattering";
-	}
-
-	@Override
 	public void detect(Document xml) {
 		final int minNbOfClasses = PropertyGetter.getIntProp("TooMuchScattering.MinNbOfClasses", 2);
 		final int maxNbOfMethods = PropertyGetter.getIntProp("TooMuchScattering.MaxNbOfMethods", 5);

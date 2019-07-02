@@ -21,10 +21,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 public class AssumingSelfMultiLanguageReturnValuesDetection extends AbstractCodeSmellDetection
 		implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "AssumingSelfMultiLanguageReturnValues";
-	}
-
 	public void detect(final Document xml) {
 		/**
 		 * A JNI method is called and its result is not checked, that is to say there is

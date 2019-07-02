@@ -19,10 +19,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "HardCodingLibraries";
-	}
-
 	public void detect(final Document xml) {
 		Set<MLSCodeSmell> hardCodedLibraries = new HashSet<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
@@ -33,7 +29,6 @@ public class HardCodingLibrariesDetection extends AbstractCodeSmellDetection imp
 		String hardCodedQuery = String.format("descendant::try[catch%s]%s", loadQuery, loadQuery);
 
 		try {
-			
 
 			final XPathExpression hardCodedExpr = xPath.compile(hardCodedQuery);
 

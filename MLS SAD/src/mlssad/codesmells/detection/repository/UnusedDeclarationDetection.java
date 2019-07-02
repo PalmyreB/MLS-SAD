@@ -17,10 +17,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class UnusedDeclarationDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "UnusedDeclaration";
-	}
-
 	public void detect(final Document xml) {
 
 		try {

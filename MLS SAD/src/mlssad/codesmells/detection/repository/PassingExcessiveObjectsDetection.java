@@ -20,10 +20,6 @@ import mlssad.utils.PropertyGetter;
 
 public class PassingExcessiveObjectsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "PassingExcessiveObjectsDetection";
-	}
-
 	public void detect(final Document xml) {
 		// TODO If object used for something else than get, it is not a code smell to
 		// pass it as a parameter

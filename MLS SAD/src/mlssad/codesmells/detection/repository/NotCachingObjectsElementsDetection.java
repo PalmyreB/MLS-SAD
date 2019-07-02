@@ -20,10 +20,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class NotCachingObjectsElementsDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "NotCachingObjectsElements";
-	}
-
 	public void detect(final Document xml) {
 		/*
 		 * "An abundance of GetFieldID() and GetMethodID() calls — in particular, if the

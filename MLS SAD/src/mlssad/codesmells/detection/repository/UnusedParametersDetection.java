@@ -39,10 +39,11 @@ public class UnusedParametersDetection extends AbstractCodeSmellDetection implem
 				Node thisFileNode = fileList.item(i);
 				String language = LANGUAGE_EXP.evaluate(thisFileNode);
 				String paramTemplate = "parameter_list/parameter%s/decl/name%s";
-				if (language.equals("C") || language.equals("C++"))
+				if (language.equals("C") || language.equals("C++")) {
 					// Skip first two parameters, which are the JNI environment and the class for a
 					// static method or the object for a non-static method
-					paramQuery = String.format(paramTemplate, "[position()>2]", "");
+					paramQuery = String.format(paramTemplate, "[position()>2]", "");					
+				}
 				else if (language.equals("Java"))
 					// Select the parameters, excluding '[]' from the name of arrays
 					paramQuery = String.format("(%s | %s)",

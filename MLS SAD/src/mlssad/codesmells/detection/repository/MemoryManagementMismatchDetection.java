@@ -20,10 +20,6 @@ import mlssad.kernel.impl.MLSCodeSmell;
 
 public class MemoryManagementMismatchDetection extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
-	public String getCodeSmellName() {
-		return "MemoryManagementMismatch";
-	}
-
 	public void detect(final Document xml) {
 		Set<MLSCodeSmell> notReleasedSet = new HashSet<>();
 
