@@ -34,6 +34,9 @@ public abstract class AbstractCodeSmellDetection
 	//	private BoxPlot boxPlot;
 	protected static XPath xPath = XPathFactory.newInstance().newXPath();
 
+	/*
+	 * Initialization of the constant <code>XPathExpression</code>s
+	 */
 	protected static XPathExpression FILE_EXP;
 	protected static XPathExpression C_FILES_EXP;
 	protected static XPathExpression JAVA_FILES_EXP;
@@ -96,6 +99,13 @@ public abstract class AbstractCodeSmellDetection
 	public AbstractCodeSmellDetection() {
 	}
 
+	/**
+	 * Sets the set of smells to the code smells detected in the
+	 * document.
+	 * 
+	 * @param	xml	srcML representation of the source code to
+	 * analyze
+	 */
 	public abstract void detect(final Document xml);
 
 	//	protected BoxPlot getBoxPlot() {
@@ -119,12 +129,20 @@ public abstract class AbstractCodeSmellDetection
 	}
 
 	/**
-	 * Return a file that displays all the smells detected
+	 * Adds a line for each code smell detected, starting with ID 0.
+	 * 
+	 * @param	aWriter	PrintWriter in which to add the line
 	 */
 	public void output(final PrintWriter aWriter) {
 		this.output(aWriter, 0);
 	}
 
+	/**
+	 * Adds a line for each code smell detected.
+	 * 
+	 * @param	aWriter	PrintWriter in which to add the line
+	 * @param	count	ID number of the first code smell
+	 */
 	public void output(final PrintWriter aWriter, int count) {
 		try {
 			final Iterator<MLSCodeSmell> iter = this.getCodeSmells().iterator();

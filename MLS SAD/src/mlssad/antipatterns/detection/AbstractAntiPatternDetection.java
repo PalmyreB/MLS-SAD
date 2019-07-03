@@ -32,6 +32,13 @@ public abstract class AbstractAntiPatternDetection {
 
 	private Set<MLSAntiPattern> setOfAntiPatterns;
 
+	/**
+	 * Sets the set of anti-patterns to the anti-patterns detected in the
+	 * document.
+	 * 
+	 * @param	xml	srcML representation of the source code to
+	 * analyze
+	 */
 	public abstract void detect(final Document xml);
 
 	public String getAntiPatternName() {
@@ -50,10 +57,21 @@ public abstract class AbstractAntiPatternDetection {
 		return this.getAntiPatternName() + "Detection";
 	}
 
+	/**
+	 * Adds a line for each anti-pattern detected, starting with ID 0.
+	 * 
+	 * @param	aWriter	PrintWriter in which to add the line
+	 */
 	public void output(final PrintWriter aWriter) {
 		this.output(aWriter, 0);
 	}
 
+	/**
+	 * Adds a line for each anti-pattern detected.
+	 * 
+	 * @param	aWriter	PrintWriter in which to add the line
+	 * @param	count	ID number of the first anti-pattern
+	 */
 	public void output(final PrintWriter aWriter, int count) {
 		try {
 			final Iterator<MLSAntiPattern> iter =

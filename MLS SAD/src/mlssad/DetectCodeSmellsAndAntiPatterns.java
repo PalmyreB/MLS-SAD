@@ -47,6 +47,12 @@ import mlssad.utils.CodeToXml;
 
 public class DetectCodeSmellsAndAntiPatterns {
 
+	/**
+	 * Outputs a CSV listing the code smells and anti-patterns detected
+	 * in the input project.
+	 * 
+	 * @param args	Path to the input project (can be a file or a directory)
+	 */
 	public static void main(final String[] args) {
 		final long start = System.currentTimeMillis();
 		final Set<ICodeSmellDetection> codeSmellDetectors = new HashSet<>();
