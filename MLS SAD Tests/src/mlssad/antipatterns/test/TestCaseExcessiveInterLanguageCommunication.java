@@ -36,15 +36,13 @@ public class TestCaseExcessiveInterLanguageCommunication
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		AbstractAntiPatternTestCase.detector =
-			new ExcessiveInterLanguageCommunicationDetection();
-		AbstractAntiPatternTestCase.aPathC =
+		this.detector = new ExcessiveInterLanguageCommunicationDetection();
+		this.aPathC =
 			"../MLS SAD Tests/rsc/CodeSmellsC/src/antiPatternsC/excessiveInterLanguageCommunication.c";
-		AbstractAntiPatternTestCase.aPathJava =
+		this.aPathJava =
 			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication.java";
-		AbstractAntiPatternTestCase.expectedSmells =
-			new HashSet<MLSAntiPattern>();
-		AbstractAntiPatternTestCase.expectedSmells
+		this.expectedSmells = new HashSet<MLSAntiPattern>();
+		this.expectedSmells
 			.add(
 				new MLSAntiPattern(
 					this.expectedAntiPattern,
@@ -52,7 +50,7 @@ public class TestCaseExcessiveInterLanguageCommunication
 					"square",
 					this.expectedClass,
 					this.expectedPackage,
-					AbstractAntiPatternTestCase.aPathJava));
+					this.aPathJava));
 	}
 
 	public void testSameMethod() {
@@ -70,16 +68,13 @@ public class TestCaseExcessiveInterLanguageCommunication
 					this.expectedPackage,
 					aPathJava));
 
-		AbstractAntiPatternTestCase.detector.detect(javaXml);
+		this.detector.detect(javaXml);
 
 		TestCase
 			.assertEquals(
 				expectedSmells.size(),
-				AbstractAntiPatternTestCase.detector.getAntiPatterns().size());
-		TestCase
-			.assertEquals(
-				AbstractAntiPatternTestCase.detector.getAntiPatterns(),
-				expectedSmells);
+				this.detector.getAntiPatterns().size());
+		TestCase.assertEquals(this.detector.getAntiPatterns(), expectedSmells);
 	}
 
 	public void testSameVariable() {
@@ -106,16 +101,13 @@ public class TestCaseExcessiveInterLanguageCommunication
 					this.expectedPackage,
 					aPathJava));
 
-		AbstractAntiPatternTestCase.detector.detect(javaXml);
+		this.detector.detect(javaXml);
 
 		TestCase
 			.assertEquals(
 				expectedSmells.size(),
-				AbstractAntiPatternTestCase.detector.getAntiPatterns().size());
-		TestCase
-			.assertEquals(
-				expectedSmells,
-				AbstractAntiPatternTestCase.detector.getAntiPatterns());
+				this.detector.getAntiPatterns().size());
+		TestCase.assertEquals(expectedSmells, this.detector.getAntiPatterns());
 	}
 
 	public void testTooManyNativeCalls() {
@@ -135,16 +127,13 @@ public class TestCaseExcessiveInterLanguageCommunication
 						aPathJava));
 		}
 
-		AbstractAntiPatternTestCase.detector.detect(javaXml);
+		this.detector.detect(javaXml);
 
 		TestCase
 			.assertEquals(
 				expectedSmells.size(),
-				AbstractAntiPatternTestCase.detector.getAntiPatterns().size());
-		TestCase
-			.assertEquals(
-				expectedSmells,
-				AbstractAntiPatternTestCase.detector.getAntiPatterns());
+				this.detector.getAntiPatterns().size());
+		TestCase.assertEquals(expectedSmells, this.detector.getAntiPatterns());
 	}
 
 }

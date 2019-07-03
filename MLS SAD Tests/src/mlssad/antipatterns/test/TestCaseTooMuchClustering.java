@@ -30,12 +30,11 @@ public class TestCaseTooMuchClustering extends AbstractAntiPatternTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		AbstractAntiPatternTestCase.detector = new TooMuchClusteringDetection();
-		AbstractAntiPatternTestCase.aPathJava =
+		this.detector = new TooMuchClusteringDetection();
+		this.aPathJava =
 			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/TooMuchClustering/";
-		AbstractAntiPatternTestCase.expectedSmells =
-			new HashSet<MLSAntiPattern>();
-		AbstractAntiPatternTestCase.expectedSmells
+		this.expectedSmells = new HashSet<MLSAntiPattern>();
+		this.expectedSmells
 			.add(
 				new MLSAntiPattern(
 					this.expectedAntiPattern,
@@ -43,6 +42,6 @@ public class TestCaseTooMuchClustering extends AbstractAntiPatternTestCase {
 					"",
 					this.expectedClass,
 					this.expectedPackage,
-					AbstractAntiPatternTestCase.aPathJava));
+					this.aPathJava));
 	}
 }

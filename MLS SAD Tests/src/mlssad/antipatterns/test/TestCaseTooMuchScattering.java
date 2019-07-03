@@ -31,13 +31,12 @@ public class TestCaseTooMuchScattering extends AbstractAntiPatternTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		AbstractAntiPatternTestCase.detector = new TooMuchScatteringDetection();
-		AbstractAntiPatternTestCase.aPathJava =
+		this.detector = new TooMuchScatteringDetection();
+		this.aPathJava =
 			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/TooMuchScattering/";
-		AbstractAntiPatternTestCase.expectedSmells =
-			new HashSet<MLSAntiPattern>();
+		this.expectedSmells = new HashSet<MLSAntiPattern>();
 		for (int i = 0; i < this.classesNames.length; i++) {
-			AbstractAntiPatternTestCase.expectedSmells
+			this.expectedSmells
 				.add(
 					new MLSAntiPattern(
 						this.expectedAntiPattern,
@@ -45,7 +44,7 @@ public class TestCaseTooMuchScattering extends AbstractAntiPatternTestCase {
 						"",
 						this.classesNames[i],
 						this.expectedPackage,
-						AbstractAntiPatternTestCase.aPathJava));
+						this.aPathJava));
 		}
 	}
 

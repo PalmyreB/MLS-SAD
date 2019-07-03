@@ -29,10 +29,10 @@ import mlssad.utils.CodeToXml;
 
 public abstract class AbstractAntiPatternTestCase extends TestCase {
 
-	protected static IAntiPatternDetection detector;
-	protected static Set<MLSAntiPattern> expectedSmells;
-	protected static String aPathC;
-	protected static String aPathJava;
+	protected IAntiPatternDetection detector;
+	protected Set<MLSAntiPattern> expectedSmells;
+	protected String aPathC;
+	protected String aPathJava;
 	protected final static String PATH_C_NO_CODE_SMELL =
 		"../MLS SAD Tests/rsc/CodeSmellsC/src/noCodeSmell/NoCodeSmell.c";
 	protected final static String PATH_JAVA_NO_CODE_SMELL =
@@ -42,40 +42,32 @@ public abstract class AbstractAntiPatternTestCase extends TestCase {
 			AbstractAntiPatternTestCase.PATH_C_NO_CODE_SMELL,
 			AbstractAntiPatternTestCase.PATH_JAVA_NO_CODE_SMELL);
 
-	protected void setUp() throws Exception {
-		super.setUp();
-		AbstractAntiPatternTestCase.aPathC = null;
-		AbstractAntiPatternTestCase.aPathJava = null;
-	}
-
+	/**
+	 * Runs a test to check the presence of the expected anti-patterns in the
+	 * minimal example.
+	 */
 	public void testCodeSmells() {
-		AbstractAntiPatternTestCase.detector
-			.detect(
-				CodeToXml
-					.parse(
-						AbstractAntiPatternTestCase.aPathC,
-						AbstractAntiPatternTestCase.aPathJava));
+		this.detector.detect(CodeToXml.parse(this.aPathC, this.aPathJava));
 
 		TestCase
 			.assertEquals(
-				AbstractAntiPatternTestCase.expectedSmells.size(),
-				AbstractAntiPatternTestCase.detector.getAntiPatterns().size());
+				this.expectedSmells.size(),
+				this.detector.getAntiPatterns().size());
 		TestCase
-			.assertEquals(
-				AbstractAntiPatternTestCase.expectedSmells,
-				AbstractAntiPatternTestCase.detector.getAntiPatterns());
+			.assertEquals(this.expectedSmells, this.detector.getAntiPatterns());
 	}
 
+	/**
+	 * Runs a test to check the absence of anti-patterns in the correct
+	 * example.
+	 */
 	public void testNoCodeSmell() {
-		AbstractAntiPatternTestCase.detector.detect(this.noCodeSmellXml);
+		this.detector.detect(this.noCodeSmellXml);
 
-		TestCase
-			.assertEquals(
-				0,
-				AbstractAntiPatternTestCase.detector.getAntiPatterns().size());
+		TestCase.assertEquals(0, this.detector.getAntiPatterns().size());
 		TestCase
 			.assertEquals(
 				new HashSet<String>(),
-				AbstractAntiPatternTestCase.detector.getAntiPatterns());
+				this.detector.getAntiPatterns());
 	}
 }
