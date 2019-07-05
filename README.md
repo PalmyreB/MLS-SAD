@@ -6,8 +6,6 @@ This project aims at becoming an extension of [Ptidej](https://github.com/ptidej
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
-
 ### Running
 
 Run `/MLS SAD/src/mlssad/DetectCodeSmellsAndAntiPatterns.java` with the path to a directory or file as the only argument. The program will output a CSV file with the code smells and anti-patterns detected in the input source.
@@ -19,6 +17,21 @@ Change the parameters in `/MLS SAD/rsc/config.properties` to adapt to your needs
 ## Running the tests
 
 The directory `/MLS SAD Tests` contains tests for each code smell and anti-pattern individually, and two test suites.
+
+## Next steps
+
+- [ ] Tranform `MLSAntiPattern` class: one of its fields can be a list of `MLSCodeSmell`s
+- [ ] Match each native C/C++ function to the correct Java function
+- [ ] Test these detectors on C++ files
+  - [ ] `AssumingSelfMultiLanguageReturnValue`
+  - [ ] `LocalReferencesAbuse`
+  - [ ] `MemoryManagementMismatch`
+  - [ ] `NotCachingObjectsElements`
+  - [ ] `NotHandlingExceptions`
+- [ ] Add unit tests based on real systems
+- [ ] Complete documentation
+- [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
+- [ ] Improve performance
 
 ## Built With
 
@@ -35,5 +48,5 @@ This project is licensed under the MIT License - see the (upcoming) [LICENSE.md]
 
 ## Acknowledgments
 
-Inspired by the SAD tool in [Ptidej](https://github.com/ptidejteam/v5.2)
+Loosely inspired by the SAD tool in [Ptidej](https://github.com/ptidejteam/v5.2)
 
