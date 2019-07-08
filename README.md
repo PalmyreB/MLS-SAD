@@ -31,7 +31,7 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [ ] Add unit tests based on real systems
 - [ ] Complete documentation
 - [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
-- [ ] Improve performance
+- [ ] Improve performance (investigate [these answers](https://stackoverflow.com/questions/5734330/reading-a-list-of-xml-elements-in-java/5735501#5735501))
 
 ## Built With
 
