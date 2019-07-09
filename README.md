@@ -22,6 +22,11 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 
 - [ ] Tranform `MLSAntiPattern` class: one of its fields can be a list of `MLSCodeSmell`s
 - [ ] Match each native C/C++ function to the correct Java function
+- [ ] In the detector for code smell "Local References Abuse Detection", take these JNI functions into account, if relevant:
+  - [ ] [EnsureLocalCapacity](https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#EnsureLocalCapacity)
+  - [ ] [PushLocalFrame](https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#PushLocalFrame)
+  - [ ] [PopLocalFrame](https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#PopLocalFrame)
+  - [ ] [NewLocalRef](https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#NewLocalRef)
 - [ ] Test these detectors on C++ files
   - [ ] `AssumingSelfMultiLanguageReturnValue`
   - [ ] `LocalReferencesAbuse`
@@ -29,9 +34,17 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
   - [ ] `NotCachingObjectsElements`
   - [ ] `NotHandlingExceptions`
 - [ ] Add unit tests based on real systems
-- [ ] Complete documentation
+- [ ] Complete documentation and limits
 - [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
-- [ ] Improve performance
+- [ ] Improve performance (possibly migrate to [VTD-XML](https://vtd-xml.sourceforge.io) by XimpleWare)
+- [ ] Refactor `CodeToXML`
+
+## Limits
+
+- Anti-pattern "Excessive Inter-Language Communication": The case of calls in both ways (Java to C and C to Java) is not treated.
+- Code smell "Not Using a Relative Path": The path can be a variable, concatenated strings, an absolute path got thanks to a method applied on a relative path…
+- Code smell "Unused parameters": The detector does not work for C++ headers with extension `.h`.
+- …
 
 ## Built With
 
