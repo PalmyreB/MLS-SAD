@@ -21,18 +21,18 @@ package mlssad.codesmells.detection;
 
 import java.io.PrintWriter;
 import java.util.Set;
-import org.w3c.dom.Document;
+import com.ximpleware.NavException;
+import com.ximpleware.VTDNav;
+import com.ximpleware.XPathEvalException;
+import com.ximpleware.XPathParseException;
 import mlssad.kernel.impl.MLSCodeSmell;
 
 //import util.help.IHelpURL;
 
 public interface ICodeSmellDetection /* extends IHelpURL */ {
 	final String FILE_QUERY = "//unit";
-
 	final String C_FILES_QUERY = "//unit[@language='C++' or @language='C']";
-
 	final String JAVA_FILES_QUERY = "//unit[@language='Java']";
-
 	final String LANGUAGE_QUERY = "@language"; // Call on unit
 	final String FUNC_QUERY = "ancestor::function/name";
 	final String CLASS_QUERY = "ancestor::class/name";
@@ -43,8 +43,11 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 		"descendant::function_decl[specifier='native']/name";
 	final String IMPL_QUERY = "descendant::function/name";
 	final String HOST_CALL_QUERY = "descendant::call//name[last()]";
-	void detect(final Document xml);
+
+	void detect(final VTDNav xml) throws XPathParseException, XPathEvalException, NavException;
+
 	String getCodeSmellName();
+
 	Set<MLSCodeSmell> getCodeSmells();
 
 	String getName();

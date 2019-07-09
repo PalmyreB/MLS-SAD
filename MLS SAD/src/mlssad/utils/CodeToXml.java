@@ -23,18 +23,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import com.ximpleware.EOFException;
+import com.ximpleware.EncodingException;
+import com.ximpleware.EntityException;
+import com.ximpleware.ParseException;
+import com.ximpleware.VTDGen;
+import com.ximpleware.VTDNav;
 
 public final class CodeToXml {
 
@@ -70,7 +70,7 @@ public final class CodeToXml {
 		}
 	};
 
-	static public Document parse(final String... fileNames) {
+	static public VTDNav parse(final String... fileNames) {
 		if (fileNames.length == 1) {
 			return CodeToXml.parseSingleDocument(fileNames[0]);
 		}
@@ -79,7 +79,7 @@ public final class CodeToXml {
 		}
 	}
 
-	public static Document parseArchive(final String... fileNames) {
+	public static VTDNav parseArchive(final String... fileNames) {
 		final List<File> files = new ArrayList<>();
 		for (final String fileName : fileNames) {
 			if (fileName != null) {
@@ -124,62 +124,92 @@ public final class CodeToXml {
 		}
 
 		final List<String> params = new ArrayList<>();
+		final String xmlName = archiveName.replace(".tar.gz", ".xml");
+		File f = null;
+
+		VTDGen vg = null;
 		params.add(CodeToXml.srcmlPath);
 		params.add(archiveName);
-		Document xmlDocument = null;
+		params.add("-o");
+		params.add(xmlName);
 		try {
-			final Process process = new ProcessBuilder(params).start();
-			final InputStream inputStream = process.getInputStream();
-			final DocumentBuilderFactory builderFactory =
-				DocumentBuilderFactory.newInstance();
-			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-			xmlDocument = builder.parse(inputStream);
-		}
-		catch (final ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (final SAXException e) {
-			e.printStackTrace();
+			new ProcessBuilder(params).start();
+			f = new File(xmlName);
+			byte[] b = new byte[(int) f.length()];
+			FileInputStream fis = new FileInputStream(f);
+			fis.read(b);
+			vg = new VTDGen();
+			vg.setDoc(b);
+			vg.parse(false);
+			fis.close();
 		}
 		catch (final IOException e) {
+			e.printStackTrace();
+		}
+		catch (EncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (EOFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (EntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (ParseException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		new File(archiveName).delete();
-		return xmlDocument;
+		f.delete();
+		return vg.getNav();
 	}
 
-	public static Document parseSingleDocument(final String fileName) {
+	public static VTDNav parseSingleDocument(final String fileName) {
 		final List<String> params = new ArrayList<String>();
+		final String xmlName = "out.xml"; //fileName + ".xml";
+		File f = null;
+		VTDGen vg = null;
 		params.add(CodeToXml.srcmlPath);
 		params.add(fileName);
-		Document xmlDocument = null;
+		params.add("-o");
+		params.add(xmlName);
+		System.out.println(xmlName);
 		try {
-			final Process process = new ProcessBuilder(params).start();
-			final InputStream inputStream = process.getInputStream();
-
-			//			 Print output in console
-			//			int i;
-			//			StringBuilder xmlData = new StringBuilder();
-			//			while ((i = inputStream.read()) != -1)
-			//				xmlData.append((char) i);
-			//			System.out.println(xmlData.toString());
-			//			System.out.println(xmlData.length());
-
-			final DocumentBuilderFactory builderFactory =
-				DocumentBuilderFactory.newInstance();
-			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-			xmlDocument = builder.parse(inputStream);
-		}
-		catch (final ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (final SAXException e) {
-			e.printStackTrace();
+			new ProcessBuilder(params).start();
+			f = new File(xmlName);
+			System.out.println(f.getAbsolutePath());
+			byte[] b = new byte[(int) f.length()];
+			FileInputStream fis = new FileInputStream(f);
+			fis.read(b);
+			vg = new VTDGen();
+			vg.setDoc(b);
+			vg.parse(false);
+			fis.close();
 		}
 		catch (final IOException e) {
 			e.printStackTrace();
 		}
-		return xmlDocument;
+		catch (EncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (EOFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (EntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		f.delete();
+		return vg.getNav();
 	}
 
 }

@@ -26,7 +26,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
+import com.ximpleware.NavException;
+import com.ximpleware.VTDNav;
+import com.ximpleware.XPathEvalException;
+import com.ximpleware.XPathParseException;
 import mlssad.kernel.impl.MLSCodeSmell;
 
 public abstract class AbstractCodeSmellDetection
@@ -105,8 +108,11 @@ public abstract class AbstractCodeSmellDetection
 	 * 
 	 * @param	xml	srcML representation of the source code to
 	 * analyze
+	 * @throws XPathParseException 
+	 * @throws NavException 
+	 * @throws XPathEvalException 
 	 */
-	public abstract void detect(final Document xml);
+	public abstract void detect(final VTDNav xml) throws XPathParseException, XPathEvalException, NavException;
 
 	//	protected BoxPlot getBoxPlot() {
 	//		return this.boxPlot;

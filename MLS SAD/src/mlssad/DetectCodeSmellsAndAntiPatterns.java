@@ -26,6 +26,10 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 import org.w3c.dom.Document;
+import com.ximpleware.NavException;
+import com.ximpleware.VTDNav;
+import com.ximpleware.XPathEvalException;
+import com.ximpleware.XPathParseException;
 import mlssad.antipatterns.detection.IAntiPatternDetection;
 import mlssad.antipatterns.detection.repository.ExcessiveInterLanguageCommunicationDetection;
 import mlssad.antipatterns.detection.repository.TooMuchClusteringDetection;
@@ -52,32 +56,35 @@ public class DetectCodeSmellsAndAntiPatterns {
 	 * in the input project.
 	 * 
 	 * @param args	Path to the input project (can be a file or a directory)
+	 * @throws NavException 
+	 * @throws XPathEvalException 
+	 * @throws XPathParseException 
 	 */
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws XPathParseException, XPathEvalException, NavException {
 		final long start = System.currentTimeMillis();
 		final Set<ICodeSmellDetection> codeSmellDetectors = new HashSet<>();
 		final Set<IAntiPatternDetection> antiPatternDetectors = new HashSet<>();
 
-		codeSmellDetectors
-			.add(new AssumingSelfMultiLanguageReturnValuesDetection());
-		codeSmellDetectors.add(new HardCodingLibrariesDetection());
-		codeSmellDetectors.add(new LocalReferencesAbuseDetection());
-		codeSmellDetectors.add(new MemoryManagementMismatchDetection());
-		codeSmellDetectors.add(new NotCachingObjectsElementsDetection());
-		codeSmellDetectors.add(new NotHandlingExceptionsDetection());
-		codeSmellDetectors.add(new NotSecuringLibrariesDetection());
+//		codeSmellDetectors
+//			.add(new AssumingSelfMultiLanguageReturnValuesDetection());
+//		codeSmellDetectors.add(new HardCodingLibrariesDetection());
+//		codeSmellDetectors.add(new LocalReferencesAbuseDetection());
+//		codeSmellDetectors.add(new MemoryManagementMismatchDetection());
+//		codeSmellDetectors.add(new NotCachingObjectsElementsDetection());
+//		codeSmellDetectors.add(new NotHandlingExceptionsDetection());
+//		codeSmellDetectors.add(new NotSecuringLibrariesDetection());
 		codeSmellDetectors.add(new NotUsingRelativePathDetection());
-		codeSmellDetectors.add(new PassingExcessiveObjectsDetection());
-		codeSmellDetectors.add(new UnusedDeclarationDetection());
-		codeSmellDetectors.add(new UnusedImplementationDetection());
-		codeSmellDetectors.add(new UnusedParametersDetection());
+//		codeSmellDetectors.add(new PassingExcessiveObjectsDetection());
+//		codeSmellDetectors.add(new UnusedDeclarationDetection());
+//		codeSmellDetectors.add(new UnusedImplementationDetection());
+//		codeSmellDetectors.add(new UnusedParametersDetection());
 
-		antiPatternDetectors
-			.add(new ExcessiveInterLanguageCommunicationDetection());
-		antiPatternDetectors.add(new TooMuchClusteringDetection());
-		antiPatternDetectors.add(new TooMuchScatteringDetection());
+//		antiPatternDetectors
+//			.add(new ExcessiveInterLanguageCommunicationDetection());
+//		antiPatternDetectors.add(new TooMuchClusteringDetection());
+//		antiPatternDetectors.add(new TooMuchScatteringDetection());
 
-		final Document xml = CodeToXml.parse(args);
+		final VTDNav xml = CodeToXml.parse(args);
 		System.out
 			.println(
 				"The creation of the XML took "
@@ -103,15 +110,15 @@ public class DetectCodeSmellsAndAntiPatterns {
 					.println(detector.getCodeSmellName() + ": " + nbCodeSmells);
 			}
 
-			for (final IAntiPatternDetection detector : antiPatternDetectors) {
-				detector.detect(xml);
-				detector.output(outputWriter, id);
-				final int nbAntiPatterns = detector.getAntiPatterns().size();
-				id += nbAntiPatterns;
-				System.out
-					.println(
-						detector.getAntiPatternName() + ": " + nbAntiPatterns);
-			}
+//			for (final IAntiPatternDetection detector : antiPatternDetectors) {
+//				detector.detect(xml);
+//				detector.output(outputWriter, id);
+//				final int nbAntiPatterns = detector.getAntiPatterns().size();
+//				id += nbAntiPatterns;
+//				System.out
+//					.println(
+//						detector.getAntiPatternName() + ": " + nbAntiPatterns);
+//			}
 			outputWriter.flush();
 			outputWriter.close();
 			System.out

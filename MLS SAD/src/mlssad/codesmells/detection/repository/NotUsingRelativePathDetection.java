@@ -24,9 +24,13 @@ import java.util.Set;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import com.ximpleware.AutoPilot;
+import com.ximpleware.NavException;
+import com.ximpleware.VTDNav;
+import com.ximpleware.XPathEvalException;
+import com.ximpleware.XPathParseException;
 import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
@@ -34,59 +38,65 @@ import mlssad.kernel.impl.MLSCodeSmell;
 public class NotUsingRelativePathDetection extends AbstractCodeSmellDetection
 		implements ICodeSmellDetection {
 
-	public void detect(final Document xml) {
+	public void detect(final VTDNav xml)
+			throws XPathParseException, XPathEvalException, NavException {
 		final Set<MLSCodeSmell> notRelativePathsSet = new HashSet<>();
-
+		AutoPilot ap = new AutoPilot(xml);
 		// TODO System.load and System.loadLibrary: only way to load a library?
 		final String loadQuery =
 			"descendant::call[name = 'System.loadLibrary' or name = 'System.load']//argument//literal";
 
-		try {
-			final XPathExpression loadExpr =
-				AbstractCodeSmellDetection.xPath.compile(loadQuery);
+		//			final XPathExpression loadExpr =
+		//				AbstractCodeSmellDetection.xPath.compile(loadQuery);
+		ap.selectXPath(loadQuery);
 
-			final NodeList javaList =
-				(NodeList) AbstractCodeSmellDetection.JAVA_FILES_EXP
-					.evaluate(xml, XPathConstants.NODESET);
-			final int javaLength = javaList.getLength();
+		//			final NodeList javaList =
+		//				(NodeList) AbstractCodeSmellDetection.JAVA_FILES_EXP
+		//					.evaluate(xml, XPathConstants.NODESET);
+		//			final int javaLength = javaList.getLength();
 
-			for (int i = 0; i < javaLength; i++) {
-				final NodeList loadList = (NodeList) loadExpr
-					.evaluate(javaList.item(i), XPathConstants.NODESET);
-				final int loadLength = loadList.getLength();
-				for (int j = 0; j < loadLength; j++) {
-					final Node thisLoad = loadList.item(j);
-					final String lib = thisLoad.getTextContent();
-					if (lib.charAt(1) != '.' && lib.charAt(1) != '/') {
-						final String thisMethod =
-							AbstractCodeSmellDetection.FUNC_EXP
-								.evaluate(thisLoad);
-						final String thisClass =
-							AbstractCodeSmellDetection.CLASS_EXP
-								.evaluate(thisLoad);
-						final String thisPackage =
-							AbstractCodeSmellDetection.PACKAGE_EXP
-								.evaluate(thisLoad);
-						final String javaFilePath =
-							AbstractCodeSmellDetection.FILEPATH_EXP
-								.evaluate(javaList.item(i));
-						notRelativePathsSet
-							.add(
-								new MLSCodeSmell(
-									this.getCodeSmellName(),
-									lib,
-									thisMethod,
-									thisClass,
-									thisPackage,
-									javaFilePath));
-					}
-				}
-			}
-			this.setSetOfSmells(notRelativePathsSet);
+		int result = -1;
+
+		while ((result = ap.evalXPath()) != -1) {
+			System.out.print("" + result + " ");
+			System.out.print("Element name ==> " + xml.toString(result));
+			int t = xml.getText(); // get the index of the text (char data or CDATA)
+			if (t != -1)
+				System.out.println(" Text ==> " + xml.toNormalizedString(t));
+			System.out.println("\n ============================== ");
+			//				final NodeList loadList = (NodeList) loadExpr
+			//					.evaluate(javaList.item(i), XPathConstants.NODESET);
+			//				final int loadLength = loadList.getLength();
+			//				for (int j = 0; j < loadLength; j++) {
+			//					final Node thisLoad = loadList.item(j);
+			//					final String lib = thisLoad.getTextContent();
+			//					if (lib.charAt(1) != '.' && lib.charAt(1) != '/') {
+			//						final String thisMethod =
+			//							AbstractCodeSmellDetection.FUNC_EXP
+			//								.evaluate(thisLoad);
+			//						final String thisClass =
+			//							AbstractCodeSmellDetection.CLASS_EXP
+			//								.evaluate(thisLoad);
+			//						final String thisPackage =
+			//							AbstractCodeSmellDetection.PACKAGE_EXP
+			//								.evaluate(thisLoad);
+			//						final String javaFilePath =
+			//							AbstractCodeSmellDetection.FILEPATH_EXP
+			//								.evaluate(javaList.item(i));
+			//						notRelativePathsSet
+			//							.add(
+			//								new MLSCodeSmell(
+			//									this.getCodeSmellName(),
+			//									lib,
+			//									thisMethod,
+			//									thisClass,
+			//									thisPackage,
+			//									javaFilePath));
+			//					}
+			//				}
 		}
-		catch (final XPathExpressionException e) {
-			e.printStackTrace();
-		}
+		this.setSetOfSmells(notRelativePathsSet);
+
 	}
 
 }
