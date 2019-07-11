@@ -1,10 +1,10 @@
 /* (c) Copyright 2019 and following years, PalmyreB.
- * 
+ *
  * Use and copying of this software and preparation of derivative works
  * based upon this software are permitted. Any copy of this software or
  * of any derivative work must include the above copyright notice of
  * the author, this paragraph and the one after it.
- * 
+ *
  * This software is made available AS IS, and THE AUTHOR DISCLAIMS
  * ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -13,7 +13,7 @@
  * EXPRESSLY DISCLAIMED, WHETHER ARISING IN CONTRACT, TORT (INCLUDING
  * NEGLIGENCE) OR STRICT LIABILITY, EVEN IF THE AUTHOR IS ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * All Rights Reserved.
  */
 
@@ -40,6 +40,13 @@ public final class CodeToXml {
 
 	static final String srcmlPath = "../MLS SAD/rsc/srcML 0.9.5/bin/srcml";
 
+	/**
+	 * Compresses a file and adds it to an archive output stream.
+	 *
+	 * @param out	Archive output stream
+	 * @param file	File to add to the archive
+	 * @param dir	Directory which contains the file
+	 */
 	private static void addToArchiveCompression(
 		final TarArchiveOutputStream out,
 		final File file,
@@ -79,6 +86,11 @@ public final class CodeToXml {
 		}
 	}
 
+	/**
+	 *
+	 * @param fileNames Names of the code files to parse using srcML
+	 * @return Document corresponding to the srcML representation of the given code
+	 */
 	public static Document parseArchive(final String... fileNames) {
 		final List<File> files = new ArrayList<>();
 		for (final String fileName : fileNames) {
@@ -99,6 +111,8 @@ public final class CodeToXml {
 		}
 
 		/*
+		 * Creates an archive, compress each file given in the arguments and add it to the archive.
+		 *
 		 * Code from
 		 * https://memorynotfound.com/java-tar-example-compress-decompress-tar-tar-gz-
 		 * files/
@@ -123,31 +137,15 @@ public final class CodeToXml {
 			e.printStackTrace();
 		}
 
-		final List<String> params = new ArrayList<>();
-		params.add(CodeToXml.srcmlPath);
-		params.add(archiveName);
-		Document xmlDocument = null;
-		try {
-			final Process process = new ProcessBuilder(params).start();
-			final InputStream inputStream = process.getInputStream();
-			final DocumentBuilderFactory builderFactory =
-				DocumentBuilderFactory.newInstance();
-			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-			xmlDocument = builder.parse(inputStream);
-		}
-		catch (final ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (final SAXException e) {
-			e.printStackTrace();
-		}
-		catch (final IOException e) {
-			e.printStackTrace();
-		}
+		final Document xmlDocument = CodeToXml.parseSingleDocument(archiveName);
 		new File(archiveName).delete();
 		return xmlDocument;
 	}
 
+	/**
+	 * @param fileName Name of the code file to parse using srcML
+	 * @return Document corresponding to the srcML representation of the given code
+	 */
 	public static Document parseSingleDocument(final String fileName) {
 		final List<String> params = new ArrayList<String>();
 		params.add(CodeToXml.srcmlPath);
@@ -156,27 +154,13 @@ public final class CodeToXml {
 		try {
 			final Process process = new ProcessBuilder(params).start();
 			final InputStream inputStream = process.getInputStream();
-
-			//			 Print output in console
-			//			int i;
-			//			StringBuilder xmlData = new StringBuilder();
-			//			while ((i = inputStream.read()) != -1)
-			//				xmlData.append((char) i);
-			//			System.out.println(xmlData.toString());
-			//			System.out.println(xmlData.length());
-
 			final DocumentBuilderFactory builderFactory =
 				DocumentBuilderFactory.newInstance();
 			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			xmlDocument = builder.parse(inputStream);
 		}
-		catch (final ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (final SAXException e) {
-			e.printStackTrace();
-		}
-		catch (final IOException e) {
+		catch (final ParserConfigurationException | SAXException
+				| IOException e) {
 			e.printStackTrace();
 		}
 		return xmlDocument;
