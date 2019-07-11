@@ -1,10 +1,10 @@
 /* (c) Copyright 2019 and following years, PalmyreB.
- * 
+ *
  * Use and copying of this software and preparation of derivative works
  * based upon this software are permitted. Any copy of this software or
  * of any derivative work must include the above copyright notice of
  * the author, this paragraph and the one after it.
- * 
+ *
  * This software is made available AS IS, and THE AUTHOR DISCLAIMS
  * ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -13,7 +13,7 @@
  * EXPRESSLY DISCLAIMED, WHETHER ARISING IN CONTRACT, TORT (INCLUDING
  * NEGLIGENCE) OR STRICT LIABILITY, EVEN IF THE AUTHOR IS ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * All Rights Reserved.
  */
 
@@ -102,18 +102,15 @@ public abstract class AbstractCodeSmellDetection
 	/**
 	 * Sets the set of smells to the code smells detected in the
 	 * document.
-	 * 
+	 *
 	 * @param	xml	srcML representation of the source code to
 	 * analyze
 	 */
 	public abstract void detect(final Document xml);
 
-	//	protected BoxPlot getBoxPlot() {
-	//		return this.boxPlot;
-	//	}
-
 	public String getCodeSmellName() {
-		return this.getClass().getSimpleName();
+		final String name = this.getName();
+		return name.substring(0, name.length() - "Detection".length());
 	}
 
 	public Set<MLSCodeSmell> getCodeSmells() {
@@ -125,12 +122,12 @@ public abstract class AbstractCodeSmellDetection
 	}
 
 	public String getName() {
-		return this.getCodeSmellName() + "Detection";
+		return this.getClass().getSimpleName();
 	}
 
 	/**
 	 * Adds a line for each code smell detected, starting with ID 0.
-	 * 
+	 *
 	 * @param	aWriter	PrintWriter in which to add the line
 	 */
 	public void output(final PrintWriter aWriter) {
@@ -139,7 +136,7 @@ public abstract class AbstractCodeSmellDetection
 
 	/**
 	 * Adds a line for each code smell detected.
-	 * 
+	 *
 	 * @param	aWriter	PrintWriter in which to add the line
 	 * @param	count	ID number of the first code smell
 	 */
@@ -156,10 +153,6 @@ public abstract class AbstractCodeSmellDetection
 			e.printStackTrace();
 		}
 	}
-
-	//	protected void setBoxPlot(final BoxPlot boxPlot) {
-	//		this.boxPlot = boxPlot;
-	//	}
 
 	protected void setSetOfSmells(final Set<MLSCodeSmell> setOfSmells) {
 		this.setOfSmells = setOfSmells;

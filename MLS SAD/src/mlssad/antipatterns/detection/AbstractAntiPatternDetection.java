@@ -1,10 +1,10 @@
 /* (c) Copyright 2019 and following years, PalmyreB.
- * 
+ *
  * Use and copying of this software and preparation of derivative works
  * based upon this software are permitted. Any copy of this software or
  * of any derivative work must include the above copyright notice of
  * the author, this paragraph and the one after it.
- * 
+ *
  * This software is made available AS IS, and THE AUTHOR DISCLAIMS
  * ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -13,7 +13,7 @@
  * EXPRESSLY DISCLAIMED, WHETHER ARISING IN CONTRACT, TORT (INCLUDING
  * NEGLIGENCE) OR STRICT LIABILITY, EVEN IF THE AUTHOR IS ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * All Rights Reserved.
  */
 
@@ -35,14 +35,15 @@ public abstract class AbstractAntiPatternDetection {
 	/**
 	 * Sets the set of anti-patterns to the anti-patterns detected in the
 	 * document.
-	 * 
+	 *
 	 * @param	xml	srcML representation of the source code to
 	 * analyze
 	 */
 	public abstract void detect(final Document xml);
 
 	public String getAntiPatternName() {
-		return this.getClass().getSimpleName();
+		final String name = this.getName();
+		return name.substring(0, name.length() - "Detection".length());
 	}
 
 	public Set<MLSAntiPattern> getAntiPatterns() {
@@ -54,12 +55,12 @@ public abstract class AbstractAntiPatternDetection {
 	}
 
 	public String getName() {
-		return this.getAntiPatternName() + "Detection";
+		return this.getClass().getSimpleName();
 	}
 
 	/**
 	 * Adds a line for each anti-pattern detected, starting with ID 0.
-	 * 
+	 *
 	 * @param	aWriter	PrintWriter in which to add the line
 	 */
 	public void output(final PrintWriter aWriter) {
@@ -68,7 +69,7 @@ public abstract class AbstractAntiPatternDetection {
 
 	/**
 	 * Adds a line for each anti-pattern detected.
-	 * 
+	 *
 	 * @param	aWriter	PrintWriter in which to add the line
 	 * @param	count	ID number of the first anti-pattern
 	 */
