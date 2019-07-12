@@ -37,7 +37,7 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [ ] Complete documentation and limits
 - [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
 - [ ] Improve performance (possibly migrate to [VTD-XML](https://vtd-xml.sourceforge.io) by XimpleWare)
-- [ ] Refactor `CodeToXML`
+- [x] Refactor `CodeToXML`
 
 ## Limits
 

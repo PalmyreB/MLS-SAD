@@ -87,6 +87,7 @@ public final class CodeToXml {
 	}
 
 	/**
+	 * Parses the files given as arguments as an srcML document.
 	 *
 	 * @param fileNames Names of the code files to parse using srcML
 	 * @return Document corresponding to the srcML representation of the given code
@@ -111,7 +112,7 @@ public final class CodeToXml {
 		}
 
 		/*
-		 * Creates an archive, compress each file given in the arguments and add it to the archive.
+		 * Creates an archive, compresses each file given in the arguments and adds it to the archive.
 		 *
 		 * Code from
 		 * https://memorynotfound.com/java-tar-example-compress-decompress-tar-tar-gz-
@@ -143,6 +144,8 @@ public final class CodeToXml {
 	}
 
 	/**
+	 * Parses the file given as an argument as an srcML document.
+	 *
 	 * @param fileName Name of the code file to parse using srcML
 	 * @return Document corresponding to the srcML representation of the given code
 	 */
