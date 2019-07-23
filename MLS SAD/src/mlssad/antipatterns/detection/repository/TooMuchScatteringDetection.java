@@ -74,7 +74,8 @@ public class TooMuchScatteringDetection extends AbstractAntiPatternDetection
 				final NodeList nativeDeclList = (NodeList) NATIVE_EXP
 					.evaluate(javaXml, XPathConstants.NODESET);
 				final int nativeDeclLength = nativeDeclList.getLength();
-				if (nativeDeclLength <= maxNbOfMethods) {
+				if (nativeDeclLength > 0
+						&& nativeDeclLength <= maxNbOfMethods) {
 					final String thisClass = CLASS_EXP.evaluate(javaXml);
 					final String thisPackage = PACKAGE_EXP.evaluate(javaXml);
 					final String thisFilePath = FILEPATH_EXP.evaluate(javaXml);

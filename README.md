@@ -21,6 +21,7 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 ## Next steps
 
 - [ ] Tranform `MLSAntiPattern` class: one of its fields can be a list of `MLSCodeSmell`s
+- [ ] Make more obvious the relationship between code smells and anti-patterns they characterize
 - [ ] Match each native C/C++ function to the correct Java function
 - [ ] In the detector for code smell "Local References Abuse Detection", take these JNI functions into account, if relevant:
   - [ ] [EnsureLocalCapacity](https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#EnsureLocalCapacity)
@@ -38,6 +39,8 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
 - [ ] Improve performance (possibly migrate to [VTD-XML](https://vtd-xml.sourceforge.io) by XimpleWare)
 - [x] Refactor `CodeToXML`
+- [ ] When there is a code smell in an overloaded function or method, count as multiple code smells instead of one
+- [ ] When applicable, write `Enum` name instead of an empty class name
 
 ## Limits
 
