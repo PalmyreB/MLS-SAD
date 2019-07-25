@@ -50,14 +50,14 @@ public class ExcessiveInterLanguageCommunicationDetection
 		final int minNbOfCallsToNativeMethods = PropertyGetter
 			.getIntProp(
 				"ExcessiveInterLanguageCommunication.MinNbOfCallsToNativeMethods",
-				20);
+				10);
 
 		final Set<MLSAntiPattern> antiPatternSet = new HashSet<>();
 		final Set<MLSAntiPattern> allNativeCalls = new HashSet<>();
 		final Map<String, MLSAntiPattern> variablesAsArguments =
 			new HashMap<>();
 
-		int nbOfNativeCalls = 0;
+		int nbOfNativeCalls;
 
 		try {
 			final XPathExpression CLASS_EXP = this.xPath
@@ -74,6 +74,8 @@ public class ExcessiveInterLanguageCommunicationDetection
 			final XPathExpression argExpr =
 				this.xPath.compile("argument_list/argument/expr/name");
 
+			// TODO
+			// Iterate over //unit[@language='Java']//function ?
 			final NodeList javaList = (NodeList) this.xPath
 				.evaluate(
 					IAntiPatternDetection.JAVA_FILES_QUERY,
@@ -85,6 +87,12 @@ public class ExcessiveInterLanguageCommunicationDetection
 				final Node javaXml = javaList.item(i);
 				final String thisPackage = PACKAGE_EXP.evaluate(javaXml);
 				final String filePath = FILEPATH_EXP.evaluate(javaXml);
+
+				// Resets the count for the third case.
+				// The detector assumes there is only one class per file
+				// (and forgets about inner classes).
+				nbOfNativeCalls = 0;
+				allNativeCalls.clear();
 
 				// Native method declaration
 				final NodeList nativeDeclList = (NodeList) NATIVE_EXP
@@ -153,17 +161,16 @@ public class ExcessiveInterLanguageCommunicationDetection
 
 					}
 				}
+				/*
+				* THIRD CASE Too many calls to native methods
+				*/
+				if (nbOfNativeCalls > minNbOfCallsToNativeMethods) {
+					antiPatternSet.addAll(allNativeCalls);
+				}
+
 			}
 
-			/*
-			 * THIRD CASE Too many calls to native methods
-			 */
-			if (nbOfNativeCalls > minNbOfCallsToNativeMethods) {
-				this.setSetOfAntiPatterns(allNativeCalls);
-			}
-			else {
-				this.setSetOfAntiPatterns(antiPatternSet);
-			}
+			this.setSetOfAntiPatterns(antiPatternSet);
 		}
 		catch (final XPathExpressionException e) {
 			e.printStackTrace();
