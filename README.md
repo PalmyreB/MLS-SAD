@@ -41,12 +41,14 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [x] Refactor `CodeToXML`
 - [ ] When there is a code smell in an overloaded function or method, count as multiple code smells instead of one
 - [ ] When applicable, write `Enum` name instead of an empty class name
+- [ ] Choose the innermost class when classes are nested
 
 ## Limits
 
 - Anti-pattern "Excessive Inter-Language Communication": The case of calls in both ways (Java to C and C to Java) is not treated.
 - Code smell "Not Using a Relative Path": The path can be a variable, concatenated strings, an absolute path got thanks to a method applied on a relative path…
-- Code smell "Unused parameters": The detector does not work for C++ headers with extension `.h`.
+- Code smell "Unused Parameters": The detector does not work for C++ headers with extension `.h`.
+- Code smell "Unused Declaration": The code smell is detected in [this file from PL/Java](https://github.com/tada/pljava/blob/master/pljava/src/main/java/org/postgresql/pljava/internal/DualState.java) because of the special syntax of the [C implementation](https://github.com/tada/pljava/blob/master/pljava-so/src/main/c/DualState.c).
 - …
 
 ## Built With
