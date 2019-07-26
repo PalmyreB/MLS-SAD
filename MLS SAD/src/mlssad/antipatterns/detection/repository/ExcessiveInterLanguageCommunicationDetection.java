@@ -74,8 +74,6 @@ public class ExcessiveInterLanguageCommunicationDetection
 			final XPathExpression argExpr =
 				this.xPath.compile("argument_list/argument/expr/name");
 
-			// TODO
-			// Iterate over //unit[@language='Java']//function ?
 			final NodeList javaList = (NodeList) this.xPath
 				.evaluate(
 					IAntiPatternDetection.JAVA_FILES_QUERY,
@@ -130,12 +128,16 @@ public class ExcessiveInterLanguageCommunicationDetection
 						if (nbOfCallsToThisMethod > minNbOfCallsToSameMethod) {
 							antiPatternSet.add(thisAntiPattern);
 						}
-						// Check whether the method is called in a loop, in which case it is considered
-						// as called too much time in a first approximation
-						final NodeList loops = (NodeList) loopExpr
-							.evaluate(callList.item(k), XPathConstants.NODESET);
-						if (loops.getLength() > 0) {
-							antiPatternSet.add(thisAntiPattern);
+						else {
+							// Checks whether the method is called in a loop, in which case it is
+							// considered as called too many times in a first approximation
+							final NodeList loops = (NodeList) loopExpr
+								.evaluate(
+									callList.item(k),
+									XPathConstants.NODESET);
+							if (loops.getLength() > 0) {
+								antiPatternSet.add(thisAntiPattern);
+							}
 						}
 
 						/*
