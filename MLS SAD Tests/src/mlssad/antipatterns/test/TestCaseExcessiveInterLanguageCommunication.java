@@ -136,4 +136,19 @@ public class TestCaseExcessiveInterLanguageCommunication
 		TestCase.assertEquals(expectedSmells, this.detector.getAntiPatterns());
 	}
 
+	public void testCallsInDifferentMethods() {
+		final String aPathJava =
+			"../MLS SAD Tests/rsc/CodeSmellsJNI/src/antiPatternsJava/ExcessiveInterLanguageCommunication/ExcessiveInterLanguageCommunication5.java";
+		final Document javaXml = CodeToXml.parse(aPathJava);
+		final Set<MLSAntiPattern> expectedSmells = new HashSet<>();
+
+		this.detector.detect(javaXml);
+
+		TestCase
+			.assertEquals(
+				expectedSmells.size(),
+				this.detector.getAntiPatterns().size());
+		TestCase.assertEquals(expectedSmells, this.detector.getAntiPatterns());
+	}
+
 }

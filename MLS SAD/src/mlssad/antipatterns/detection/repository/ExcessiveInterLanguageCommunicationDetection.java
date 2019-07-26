@@ -19,6 +19,7 @@
 
 package mlssad.antipatterns.detection.repository;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,11 +51,13 @@ public class ExcessiveInterLanguageCommunicationDetection
 		final int minNbOfCallsToNativeMethods = PropertyGetter
 			.getIntProp(
 				"ExcessiveInterLanguageCommunication.MinNbOfCallsToNativeMethods",
-				10);
+				20);
 
 		final Set<MLSAntiPattern> antiPatternSet = new HashSet<>();
 		final Set<MLSAntiPattern> allNativeCalls = new HashSet<>();
-		final Map<String, MLSAntiPattern> variablesAsArguments =
+		// Key: (argument of a native function, Java method in which this function is called)
+		// Value: anti-pattern
+		final Map<AbstractMap.SimpleImmutableEntry<String, String>, MLSAntiPattern> variablesAsArguments =
 			new HashMap<>();
 
 		int nbOfNativeCalls;
@@ -68,6 +71,8 @@ public class ExcessiveInterLanguageCommunicationDetection
 				this.xPath.compile(IAntiPatternDetection.FILEPATH_QUERY);
 			final XPathExpression NATIVE_EXP =
 				this.xPath.compile(IAntiPatternDetection.NATIVE_QUERY);
+			final XPathExpression JAVA_METHOD_EXP =
+				this.xPath.compile("ancestor::function/name");
 
 			final XPathExpression loopExpr =
 				this.xPath.compile("ancestor::for | ancestor::while");
@@ -142,14 +147,20 @@ public class ExcessiveInterLanguageCommunicationDetection
 
 						/*
 						 * SECOND CASE Calls to different native methods with at least one variable in
-						 * common
+						 * common inside a Java method
 						 */
+						final String javaMethod =
+							JAVA_METHOD_EXP.evaluate(callList.item(k));
 						final NodeList argList = (NodeList) argExpr
 							.evaluate(callList.item(k), XPathConstants.NODESET);
 						for (int l = 0; l < argList.getLength(); l++) {
 							final String var = argList.item(l).getTextContent();
-							final MLSAntiPattern oldValue =
-								variablesAsArguments.put(var, thisAntiPattern);
+							final MLSAntiPattern oldValue = variablesAsArguments
+								.put(
+									new AbstractMap.SimpleImmutableEntry<>(
+										var,
+										javaMethod),
+									thisAntiPattern);
 							if (oldValue != null
 									&& !oldValue.equals(thisAntiPattern)
 									&& oldValue
@@ -160,9 +171,9 @@ public class ExcessiveInterLanguageCommunicationDetection
 								antiPatternSet.add(thisAntiPattern);
 							}
 						}
-
 					}
 				}
+
 				/*
 				* THIRD CASE Too many calls to native methods
 				*/
