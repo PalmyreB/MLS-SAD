@@ -26,8 +26,7 @@ import mlssad.kernel.impl.MLSAntiPattern;
 public class TestCaseTooMuchScattering extends AbstractAntiPatternTestCase {
 	String expectedAntiPattern = "TooMuchScattering";
 	String expectedPackage = "antiPatternsJava.tooMuchScattering";
-	String[] classesNames =
-		{ "RGB888Image", "YUV420Image", "YUV444Image" };
+	String[] classesNames = { "RGB888Image", "YUV420Image", "YUV444Image" };
 
 	protected void setUp() throws Exception {
 		super.setUp();

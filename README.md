@@ -42,6 +42,7 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [ ] When there is a code smell in an overloaded function or method, count as multiple code smells instead of one
 - [ ] When applicable, write `Enum` name instead of an empty class name
 - [ ] Choose the innermost class when classes are nested
+- [ ] Do not consider there is an anti-pattern `Passing Excessive Objects` if the object is passed as a parameter of another function.
 
 ## Limits
 
