@@ -21,7 +21,7 @@ package mlssad.codesmells.test;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import mlssad.codesmells.detection.repository.AssumingSelfMultiLanguageReturnValuesDetection;
+import mlssad.codesmells.detection.repository.AssumingSafeMultiLanguageReturnValuesDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
 
 public class TestCaseAssumingSelfMultiLanguageReturnValues
@@ -30,7 +30,7 @@ public class TestCaseAssumingSelfMultiLanguageReturnValues
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.codeSmell = "AssumingSelfMultiLanguageReturnValues";
-		this.detector = new AssumingSelfMultiLanguageReturnValuesDetection();
+		this.detector = new AssumingSafeMultiLanguageReturnValuesDetection();
 		this.aPathC =
 			"../MLS SAD Tests/rsc/CodeSmellsC/src/codeSmellsC/AssumingSelfMultiLanguageReturnValues.c";
 		this.aPathJava =

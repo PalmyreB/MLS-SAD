@@ -31,7 +31,7 @@ import mlssad.antipatterns.detection.repository.ExcessiveInterLanguageCommunicat
 import mlssad.antipatterns.detection.repository.TooMuchClusteringDetection;
 import mlssad.antipatterns.detection.repository.TooMuchScatteringDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
-import mlssad.codesmells.detection.repository.AssumingSelfMultiLanguageReturnValuesDetection;
+import mlssad.codesmells.detection.repository.AssumingSafeMultiLanguageReturnValuesDetection;
 import mlssad.codesmells.detection.repository.HardCodingLibrariesDetection;
 import mlssad.codesmells.detection.repository.LocalReferencesAbuseDetection;
 import mlssad.codesmells.detection.repository.MemoryManagementMismatchDetection;
@@ -59,7 +59,7 @@ public class DetectCodeSmellsAndAntiPatterns {
 		final Set<IAntiPatternDetection> antiPatternDetectors = new HashSet<>();
 
 		codeSmellDetectors
-			.add(new AssumingSelfMultiLanguageReturnValuesDetection());
+			.add(new AssumingSafeMultiLanguageReturnValuesDetection());
 		codeSmellDetectors.add(new HardCodingLibrariesDetection());
 		codeSmellDetectors.add(new LocalReferencesAbuseDetection());
 		codeSmellDetectors.add(new MemoryManagementMismatchDetection());
@@ -85,15 +85,22 @@ public class DetectCodeSmellsAndAntiPatterns {
 
 		try {
 			int id = 0;
+			String bareName = "openj9-jcl";
+			if (bareName.equals("")) {
+				bareName = "Detection_of_code_smells_and_anti_patterns";
+			}
+			System.out.println(bareName);
+			System.out.println(args[0]);
+			System.out.println();
+
 			// FileWriter(..., false): no auto-append, write at the beginning of the file
 			// PrintWriter(..., false): no autoflush for performance reason
 			final PrintWriter outputWriter = new PrintWriter(
 				new BufferedWriter(
-					new FileWriter(
-						"Detection_of_code_smells_and_anti_patterns.csv",
-						false)),
+					new FileWriter("results/" + bareName + ".csv", false)),
 				false);
 			outputWriter.println("ID,Name,Variable,Method,Class,Package,File");
+
 			for (final ICodeSmellDetection detector : codeSmellDetectors) {
 				detector.detect(xml);
 				detector.output(outputWriter, id);

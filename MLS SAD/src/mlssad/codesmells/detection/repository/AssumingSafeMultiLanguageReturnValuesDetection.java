@@ -34,7 +34,7 @@ import mlssad.codesmells.detection.AbstractCodeSmellDetection;
 import mlssad.codesmells.detection.ICodeSmellDetection;
 import mlssad.kernel.impl.MLSCodeSmell;
 
-public class AssumingSelfMultiLanguageReturnValuesDetection
+public class AssumingSafeMultiLanguageReturnValuesDetection
 		extends AbstractCodeSmellDetection implements ICodeSmellDetection {
 
 	public void detect(final Document xml) {
