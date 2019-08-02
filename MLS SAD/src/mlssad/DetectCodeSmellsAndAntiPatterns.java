@@ -20,6 +20,7 @@
 package mlssad;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,14 +36,16 @@ import mlssad.codesmells.detection.repository.AssumingSafeMultiLanguageReturnVal
 import mlssad.codesmells.detection.repository.HardCodingLibrariesDetection;
 import mlssad.codesmells.detection.repository.LocalReferencesAbuseDetection;
 import mlssad.codesmells.detection.repository.MemoryManagementMismatchDetection;
-import mlssad.codesmells.detection.repository.NotCachingObjectsElementsDetection;
 import mlssad.codesmells.detection.repository.NotHandlingExceptionsDetection;
 import mlssad.codesmells.detection.repository.NotSecuringLibrariesDetection;
 import mlssad.codesmells.detection.repository.NotUsingRelativePathDetection;
 import mlssad.codesmells.detection.repository.PassingExcessiveObjectsDetection;
-import mlssad.codesmells.detection.repository.UnusedDeclarationDetection;
-import mlssad.codesmells.detection.repository.UnusedImplementationDetection;
 import mlssad.codesmells.detection.repository.UnusedParametersDetection;
+// Detectors that need to analyse both languages
+// Uncomment when giving both Java and native code as an argument
+//import mlssad.codesmells.detection.repository.NotCachingObjectsElementsDetection;
+//import mlssad.codesmells.detection.repository.UnusedDeclarationDetection;
+//import mlssad.codesmells.detection.repository.UnusedImplementationDetection;
 import mlssad.utils.CodeToXml;
 
 public class DetectCodeSmellsAndAntiPatterns {
@@ -90,9 +93,16 @@ public class DetectCodeSmellsAndAntiPatterns {
 			int id = 0;
 			String bareName = "";
 			if (bareName.equals("")) {
-				String[] parts = args[0].split("[\\/\\\\]");
+				final String[] parts = args[0].split("[\\/\\\\]");
 				bareName = parts[parts.length - 1];
 			}
+			final String dir = "results";
+			final String fullPath = dir + "/" + bareName + ".csv";
+
+			if (new File(dir).mkdirs()) {
+				System.out.println("Directory " + dir + " created");
+			}
+
 			System.out.println(bareName);
 			System.out.println(args[0]);
 			System.out.println();
@@ -100,8 +110,7 @@ public class DetectCodeSmellsAndAntiPatterns {
 			// FileWriter(..., false): no auto-append, write at the beginning of the file
 			// PrintWriter(..., false): no autoflush for performance reason
 			final PrintWriter outputWriter = new PrintWriter(
-				new BufferedWriter(
-					new FileWriter("results/" + bareName + ".csv", false)),
+				new BufferedWriter(new FileWriter(fullPath, false)),
 				false);
 			outputWriter.println("ID,Name,Variable,Method,Class,Package,File");
 
