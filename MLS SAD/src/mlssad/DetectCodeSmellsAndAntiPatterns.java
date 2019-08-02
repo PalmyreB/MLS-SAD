@@ -63,14 +63,17 @@ public class DetectCodeSmellsAndAntiPatterns {
 		codeSmellDetectors.add(new HardCodingLibrariesDetection());
 		codeSmellDetectors.add(new LocalReferencesAbuseDetection());
 		codeSmellDetectors.add(new MemoryManagementMismatchDetection());
-		codeSmellDetectors.add(new NotCachingObjectsElementsDetection());
 		codeSmellDetectors.add(new NotHandlingExceptionsDetection());
 		codeSmellDetectors.add(new NotSecuringLibrariesDetection());
 		codeSmellDetectors.add(new NotUsingRelativePathDetection());
 		codeSmellDetectors.add(new PassingExcessiveObjectsDetection());
-		codeSmellDetectors.add(new UnusedDeclarationDetection());
-		codeSmellDetectors.add(new UnusedImplementationDetection());
 		codeSmellDetectors.add(new UnusedParametersDetection());
+
+		// Detectors that need to analyse both languages
+		// Uncomment when giving both Java and native code as an argument
+		//		codeSmellDetectors.add(new NotCachingObjectsElementsDetection());
+		//		codeSmellDetectors.add(new UnusedDeclarationDetection());
+		//		codeSmellDetectors.add(new UnusedImplementationDetection());
 
 		antiPatternDetectors
 			.add(new ExcessiveInterLanguageCommunicationDetection());
@@ -85,9 +88,10 @@ public class DetectCodeSmellsAndAntiPatterns {
 
 		try {
 			int id = 0;
-			String bareName = "openj9-jcl";
+			String bareName = "";
 			if (bareName.equals("")) {
-				bareName = "Detection_of_code_smells_and_anti_patterns";
+				String[] parts = args[0].split("[\\/\\\\]");
+				bareName = parts[parts.length - 1];
 			}
 			System.out.println(bareName);
 			System.out.println(args[0]);
