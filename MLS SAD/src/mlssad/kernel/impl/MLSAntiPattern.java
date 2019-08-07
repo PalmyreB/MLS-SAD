@@ -26,7 +26,6 @@ public class MLSAntiPattern {
 
 	private String antiPatternName;
 
-	private int lineNumber;
 	private String variableName;
 	private String methodName;
 	private String className;
@@ -89,12 +88,13 @@ public class MLSAntiPattern {
 				this.variableName);
 	}
 
-	public String getFilePath() {
-		return this.filePath;
+	public String getFileName() {
+		final String[] parts = this.filePath.split("[\\/\\\\]");
+		return parts[parts.length - 1];
 	}
 
-	public int getLineNumber() {
-		return this.lineNumber;
+	public String getFilePath() {
+		return this.filePath;
 	}
 
 	public String getMethodName() {
@@ -124,10 +124,6 @@ public class MLSAntiPattern {
 
 	public void setFilePath(final String filePath) {
 		this.filePath = filePath;
-	}
-
-	public void setLineNumber(final int lineNumber) {
-		this.lineNumber = lineNumber;
 	}
 
 	public void setMethodName(final String methodName) {
@@ -179,6 +175,11 @@ public class MLSAntiPattern {
 		if (!this.filePath.isEmpty()) {
 			sb.append("\n\tFile path: ");
 			sb.append(this.filePath);
+		}
+		final String fileName = this.getFileName();
+		if (!fileName.isEmpty()) {
+			sb.append("\n\tFile name: ");
+			sb.append(fileName);
 		}
 		sb.append("\n}");
 		return sb.toString();

@@ -112,7 +112,7 @@ public class DetectCodeSmellsAndAntiPatterns {
 			final PrintWriter outputWriter = new PrintWriter(
 				new BufferedWriter(new FileWriter(fullPath, false)),
 				false);
-			outputWriter.println("ID,Name,Variable,Method,Class,Package,File");
+			outputWriter.println("ID,Name,Variable,Method,Class,Package,File,File Name");
 
 			for (final ICodeSmellDetection detector : codeSmellDetectors) {
 				detector.detect(xml);

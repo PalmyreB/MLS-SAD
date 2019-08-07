@@ -26,7 +26,6 @@ public class MLSCodeSmell {
 
 	private String codeSmellName;
 
-	private int lineNumber;
 	private String variableName;
 	private String methodName;
 	private String className;
@@ -89,12 +88,13 @@ public class MLSCodeSmell {
 				this.variableName);
 	}
 
-	public String getFilePath() {
-		return this.filePath;
+	public String getFileName() {
+		final String[] parts = this.filePath.split("[\\/\\\\]");
+		return parts[parts.length - 1];
 	}
 
-	public int getLineNumber() {
-		return this.lineNumber;
+	public String getFilePath() {
+		return this.filePath;
 	}
 
 	public String getMethodName() {
@@ -126,10 +126,6 @@ public class MLSCodeSmell {
 		this.filePath = filePath;
 	}
 
-	public void setLineNumber(final int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
-
 	public void setMethodName(final String methodName) {
 		this.methodName = methodName;
 	}
@@ -150,7 +146,8 @@ public class MLSCodeSmell {
 				this.methodName,
 				this.className,
 				this.packageName,
-				this.filePath);
+				this.filePath,
+				this.getFileName());
 		return String.join(",", elements);
 	}
 
@@ -179,6 +176,11 @@ public class MLSCodeSmell {
 		if (!this.filePath.isEmpty()) {
 			sb.append("\n\tFile path: ");
 			sb.append(this.filePath);
+		}
+		final String fileName = this.getFileName();
+		if (!fileName.isEmpty()) {
+			sb.append("\n\tFile name: ");
+			sb.append(fileName);
 		}
 		sb.append("\n}");
 		return sb.toString();
