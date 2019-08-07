@@ -185,13 +185,16 @@ public class AssumingSafeMultiLanguageReturnValuesDetection
 						final String function =
 							AbstractCodeSmellDetection.FUNC_EXP
 								.evaluate(declList.item(j));
+						final String className =
+							AbstractCodeSmellDetection.CLASS_EXP
+								.evaluate(declList.item(j));
 						notCheckedSet
 							.add(
 								new MLSCodeSmell(
 									codeSmellName,
 									arg,
 									function,
-									"",
+									className,
 									"",
 									cFilePath));
 					}

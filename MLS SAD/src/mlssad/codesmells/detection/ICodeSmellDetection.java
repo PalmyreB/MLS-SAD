@@ -35,8 +35,9 @@ public interface ICodeSmellDetection /* extends IHelpURL */ {
 
 	final String LANGUAGE_QUERY = "@language"; // Call on unit
 	final String FUNC_QUERY = "ancestor::function/name";
-	final String CLASS_QUERY = "ancestor::class/name";
-	final String PACKAGE_QUERY = "ancestor::unit/package/name";
+	final String CLASS_QUERY =
+		"ancestor::class/name | ancestor::interface/name";
+	final String PACKAGE_QUERY = "ancestor::unit/package/name | ancestor::unit/namespace/name";
 	final String FILEPATH_QUERY = "@filename"; // Call on unit
 	final String NAME_QUERY = "name";
 	final String NATIVE_DECL_QUERY =
