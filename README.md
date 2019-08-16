@@ -18,6 +18,16 @@ Change the parameters in `/MLS SAD/rsc/config.properties` to adapt to your needs
 
 The directory `/MLS SAD Tests` contains tests for each code smell and anti-pattern individually, and two test suites.
 
+The tests require the pilot project for detection of anti-patterns and code smells in multi-language systems:
+
+1. Clone the [pilot project](https://github.com/ptidejteam/PilotProjectAPCSMLS/).
+2. Create a junction between the folder `MLS SAD Tests/rsc` and the pilot project folder.
+    On Windows, assuming that the two projects are in the same folder (otherwise, include their paths):
+
+```shell
+MKLINK /D /J "MLS-SAD\MLS SAD Tests\rsc" "PilotProjectAPCSMLS"
+```
+
 ## Next steps
 
 - [ ] Tranform `MLSAntiPattern` class: one of its fields can be a list of `MLSCodeSmell`s
@@ -39,13 +49,13 @@ The directory `/MLS SAD Tests` contains tests for each code smell and anti-patte
 - [ ] Integrate into [Ptidej](https://github.com/ptidejteam/v5.2) suite
 - [ ] Improve performance (possibly migrate to [VTD-XML](https://vtd-xml.sourceforge.io) by XimpleWare)
 - [x] Refactor `CodeToXML`
-- [ ] When there is a code smell in an overloaded function or method, count as multiple code smells instead of one
+- [ ] When there is a code smell in an overloaded function or method, count as multiple code smells instead of one (use signature?)
 - [ ] When applicable, write `Enum` name instead of an empty class name? (see if it is relevant)
 - [x] When applicable, write `Interface` name instead of an empty class name
 - [ ] Choose the innermost class when classes are nested
 - [ ] Do not consider there is an anti-pattern `Passing Excessive Objects` if the object is passed as a parameter of another function.
-- [ ] Grab the line numbers thanks to the `--position` option of srcML, which adds position tags and attributes as `<pos:position pos:line="289" pos:column="18"/>` (problem: the size of the srcML resulting file is far more important).
-- [ ] Fix the problem with the classes not always appearing.
+- [ ] Grab the line numbers thanks to the `--position` option of srcML, which adds position tags and attributes as `<pos:position pos:line="289" pos:column="18"/>` (problem: the size of the srcML resulting file is far more important)
+- [ ] Fix the problem with the classes not always appearing
 
 ## Limits
 
